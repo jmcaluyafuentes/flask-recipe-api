@@ -6,13 +6,38 @@ Coder Academy
 
 ## Purpose
 
-## About the API Web server
+This API web server is an assignment for Term 2 in the Coder Academy Diploma of IT. It aims to provide students with practical experience in developing a fully functional web application backend using modern web development technologies and best practices. My project involves creating a recipe management system that allows users to manage and discover recipes, leveraging Flask for the web framework and PostgreSQL for the relational database management system.
 
-The name of the API web server is Flask Recipe API.
+## Description
+
+This API web server, named Flask Recipe API, is designed to manage a recipe application where users can create, save, and browse recipes. Built using Flask, a lightweight Python web framework, this server provides a robust backend for handling user authentication, recipe management, and data persistence using a PostgreSQL database.
+
+1. User Management
+
+    - Admin users can add new users to the system.
+    - User authentication and authorization to ensure secure access to the API endpoints.
+
+2. Recipe Management
+
+    - Users can create, update, and delete their own recipes.
+    - Recipes can be marked as public or private.
+    - Admins have the ability to delete any public recipe.
+
+3. Recipe Discovery
+
+    - Users can browse public recipes.
+    - Users can save public recipes to their personal accounts for easy access.
+    - Users can filter recipes based on various criteria like cuisine, preparation time, etc.
+    - Users can get a random recipe suggestion if unsure of what to cook.
+
+4. Recipe Details
+
+    - Recipes consist of step-by-step instructions that are ordered to ensure clarity.
+    - Users can leave personal notes on saved recipes for future reference.
 
 ## Github Repository
 
-## Preview of the API Webserver
+https://github.com/jmcaluyafuentes/flask-recipe-api
 
 ## Requirements
 
