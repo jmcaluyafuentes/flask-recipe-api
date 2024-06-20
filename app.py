@@ -85,10 +85,19 @@ def db_create():
         Ingredient(name='Chicken', quantity='200g')
     ]
 
+    instructions = [
+        Instruction(description='Boil the spaghetti.', order=1),
+        Instruction(description='Fry the bacon.', order=2),
+        Instruction(description='Mix eggs with cheese.', order=3),
+        Instruction(description='Cook the chicken.', order=1),
+        Instruction(description='Assemble the tacos.', order=2)
+    ]
+
     db.session.add_all(users)
     db.session.add_all(categories)
     db.session.add_all(recipes)
     db.session.add_all(ingredients)
+    db.session.add_all(instructions)
     db.session.commit()
 
 # Get all users
