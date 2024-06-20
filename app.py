@@ -83,6 +83,13 @@ def all_users():
     users = db.session.scalars(stmt).all()
     print(users)
 
+# Get all categories
+@app.cli.command("all_categories")
+def all_categories():
+    stmt = db.select(Category)
+    categories = db.session.scalars(stmt).all()
+    print(categories)
+
 @app.route('/')
 def index():
     return '<h1>Flask Recipe API</h1>'
