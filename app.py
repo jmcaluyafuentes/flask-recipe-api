@@ -72,8 +72,14 @@ def db_create():
         Category(name='Mexican')
     ]
 
+    recipes = [
+        Recipe(title='Spaghetti Carbonara', description='A classic Italian pasta dish.', is_public=True, preparation_time=30),
+        Recipe(title='Tacos', description='Delicious Mexican tacos.', is_public=True, preparation_time=20)
+    ]
+
     db.session.add_all(users)
     db.session.add_all(categories)
+    db.session.add_all(recipes)
     db.session.commit()
 
 # Get all users
