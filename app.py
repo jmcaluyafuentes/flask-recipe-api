@@ -62,6 +62,14 @@ def db_create():
     db.create_all()
     print('Created tables')
 
+    users = [
+        User(username='user1', password_hash='hashed_password1', email='user1@example.com'),
+        User(username='user2', password_hash='hashed_password2', email='user2@example.com')
+    ]
+
+    db.session.add_all(users)
+    db.session.commit()
+
 @app.route('/')
 def index():
     return '<h1>Flask Recipe API</h1>'
