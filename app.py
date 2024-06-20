@@ -128,6 +128,13 @@ def all_ingredients():
     ingredients = db.session.scalars(stmt).all()
     print(ingredients)
 
+# Get all instructions
+@app.cli.command("all_instructions")
+def all_instructions():
+    stmt = db.select(Instruction)
+    instructions = db.session.scalars(stmt).all()
+    print(instructions)
+
 @app.route('/')
 def index():
     return '<h1>Flask Recipe API</h1>'
