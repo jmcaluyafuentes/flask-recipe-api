@@ -67,7 +67,13 @@ def db_create():
         User(username='user2', password_hash='hashed_password2', email='user2@example.com')
     ]
 
+    categories = [
+        Category(name='Italian'),
+        Category(name='Mexican')
+    ]
+
     db.session.add_all(users)
+    db.session.add_all(categories)
     db.session.commit()
 
 @app.route('/')
