@@ -77,9 +77,18 @@ def db_create():
         Recipe(title='Tacos', description='Delicious Mexican tacos.', is_public=True, preparation_time=20)
     ]
 
+    ingredients = [
+        Ingredient(name='Spaghetti', quantity='200g'),
+        Ingredient(name='Eggs', quantity='4'),
+        Ingredient(name='Bacon', quantity='100g'),
+        Ingredient(name='Tortillas', quantity='4'),
+        Ingredient(name='Chicken', quantity='200g')
+    ]
+
     db.session.add_all(users)
     db.session.add_all(categories)
     db.session.add_all(recipes)
+    db.session.add_all(ingredients)
     db.session.commit()
 
 # Get all users
