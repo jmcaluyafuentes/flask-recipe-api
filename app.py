@@ -76,6 +76,13 @@ def db_create():
     db.session.add_all(categories)
     db.session.commit()
 
+# Get all users
+@app.cli.command("all_users")
+def all_users():
+    stmt = db.select(User)
+    users = db.session.scalars(stmt).all()
+    print(users)
+
 @app.route('/')
 def index():
     return '<h1>Flask Recipe API</h1>'
