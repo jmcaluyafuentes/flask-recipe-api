@@ -271,22 +271,6 @@ def all_recipes():
     recipes = db.session.scalars(stmt).all()
     return RecipeSchema(many=True).dump(recipes)
 
-@app.cli.command("all_ingredients")
-def all_ingredients():
-    """
-    Route to fetch all ingredients from the database.
-    """
-    stmt = db.select(Ingredient)
-    ingredients = db.session.scalars(stmt).all()
-
-@app.cli.command("all_instructions")
-def all_instructions():
-    """
-    Route to fetch all instructions from the database.
-    """
-    stmt = db.select(Instruction)
-    instructions = db.session.scalars(stmt).all()
-
 # Basic route for the index page to test flask application is working
 @app.route('/')
 def index():
