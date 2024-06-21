@@ -36,19 +36,11 @@ class User(db.Model):
     """
     __tablename__ = 'users'
 
-    # id = db.Column(db.Integer, primary_key=True)
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    # username = db.Column(db.String(255), nullable=False, unique=True)
     username: Mapped[str] = mapped_column(String(100), unique=True)
-    
-    # password_hash = db.Column(db.String(255), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(200))
-    
-    # email = db.Column(db.String(255), nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String(200), unique=True)
-
-    # is_admin = db.Column(db.Boolean, default=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
 
 class Category(db.Model):
@@ -61,9 +53,8 @@ class Category(db.Model):
     """
     __tablename__ = 'categories'
 
-    # id = db.Column(db.Integer, primary_key=True)
     id: Mapped[int] = mapped_column(primary_key=True)
-    # name = db.Column(db.String(255), nullable=False)
+
     name: Mapped[str] = mapped_column(String(100))
 
 class Recipe(db.Model):
@@ -80,29 +71,15 @@ class Recipe(db.Model):
     """
     __tablename__ = 'recipes'
 
-    # id = db.Column(db.Integer, primary_key=True)
     id: Mapped[int] = mapped_column(primary_key=True)
 
     # author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    
-    # title = db.Column(db.String(255), nullable=False)
     title: Mapped[str] = mapped_column(String(200))
-
-    # description = db.Column(db.Text)
     description: Mapped[Optional[str]] = mapped_column(Text())
-
-    # is_public = db.Column(db.Boolean, default=True)
     is_public: Mapped[bool] = mapped_column(Boolean, server_default="true")
-
     # cuisine_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
-
-    # preparation_time = db.Column(db.Integer)
     preparation_time: Mapped[Optional[int]]
-    
-    # created_at = db.Column(db.DateTime, default=datetime.now)
     date_created: Mapped[date]
-
-    # updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
 class Ingredient(db.Model):
     """
@@ -115,15 +92,10 @@ class Ingredient(db.Model):
     """
     __tablename__ = 'ingredients'
 
-    # id = db.Column(db.Integer, primary_key=True)
     id: Mapped[int] = mapped_column(primary_key=True)
 
     # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
-
-    # name = db.Column(db.String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(200))
-    
-    # quantity = db.Column(db.String(255))
     quantity: Mapped[Optional[str]] = mapped_column(String(50))
 
 class Instruction(db.Model):
@@ -141,11 +113,7 @@ class Instruction(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
-    
-    # description = db.Column(db.Text, nullable=False)
     description: Mapped[str] = mapped_column(Text())
-    
-    # order = db.Column(db.Integer, nullable=False)
     order: Mapped[int]
 
 class SavedRecipe(db.Model):
@@ -154,7 +122,7 @@ class SavedRecipe(db.Model):
 
     Attributes:
         id (int): The primary key for the saved recipe entry.
-        saved_at (datetime): The timestamp when the recipe was saved (default is current timestamp).
+        date_saved (datetime): The timestamp when the recipe was saved (default is current timestamp).
         notes (str): Optional notes or comments about the saved recipe.
     """
     __tablename__ = 'saved_recipes'
@@ -164,11 +132,7 @@ class SavedRecipe(db.Model):
 
     # user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
-    
-    # saved_at = db.Column(db.DateTime, default=datetime.now)
     date_saved: Mapped[date]
-
-    # notes = db.Column(db.Text)
     notes: Mapped[Optional[str]] = mapped_column(Text())
 
 @app.cli.command('db_create')
