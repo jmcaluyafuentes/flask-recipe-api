@@ -214,58 +214,56 @@ def db_create():
 # Marshmallow schema (NOT a db schema)
 # Used by Marshmallow to serialize and/or validate our SQLAlchemy models
 class UserSchema(ma.Schema):
+    """
+    Marshmallow schema for serializing and deserializing User objects.
+    """
     class Meta:
+        """
+        Inner class that specifies the fields to include in the schema.
+        """
         fields = ('id', 'username', 'email', 'is_admin')
 
-# CLI command to get all users
-@app.cli.command("all_users")
+# Routes
+@app.route("/users")
 def all_users():
     """
-    Flask CLI command to fetch and print all users from the database.
+    Route to fetch all users from the database.
     """
     stmt = db.select(User)
     users = db.session.scalars(stmt).all()
-    print(users)
+    return UserSchema(many=True).dump(users)
 
-# Command to get all categories
-@app.cli.command("all_categories")
+@app.route("/categories")
 def all_categories():
     """
-    Flask CLI command to fetch and print all categories from the database.
+    Route to fetch all categories from the database.
     """
     stmt = db.select(Category)
     categories = db.session.scalars(stmt).all()
-    print(categories)
 
-# Command to get all recipes
 @app.cli.command("all_recipes")
 def all_recipes():
     """
-    Flask CLI command to fetch and print all recipes from the database.
+    Route to fetch all recipes from the database.
     """
     stmt = db.select(Recipe)
     recipes = db.session.scalars(stmt).all()
-    print(recipes)
 
-# Command to get all ingredients
 @app.cli.command("all_ingredients")
 def all_ingredients():
     """
-    Flask CLI command to fetch and print all ingredients from the database.
+    Route to fetch all ingredients from the database.
     """
     stmt = db.select(Ingredient)
     ingredients = db.session.scalars(stmt).all()
-    print(ingredients)
 
-# Command to get all instructions
 @app.cli.command("all_instructions")
 def all_instructions():
     """
-    Flask CLI command to fetch and print all instructions from the database.
+    Route to fetch all instructions from the database.
     """
     stmt = db.select(Instruction)
     instructions = db.session.scalars(stmt).all()
-    print(instructions)
 
 # Basic route for the index page to test flask application is working
 @app.route('/')
