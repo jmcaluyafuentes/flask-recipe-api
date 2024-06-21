@@ -1,10 +1,11 @@
 from os import environ
-from datetime import datetime, date
+from datetime import date
 from typing import Optional
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, Text
+from flask_marshmallow import Marshmallow
 
 # Create a base class for all SQLAlchemy models
 class Base(DeclarativeBase):
@@ -22,6 +23,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URI")
 # Initialize SQLAlchemy with the Flask application
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
+
+# Creating an instance of Marshmallow class and passing in the flask app
+ma = Marshmallow(app)
 
 class User(db.Model):
     """
@@ -206,6 +210,12 @@ def db_create():
 
     # db.session.add_all(saved_recipes)
     # db.session.commit()
+
+# Marshmallow schema (NOT a db schema)
+# Used by Marshmallow to serialize and/or validate our SQLAlchemy models
+class UserSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'username', 'email', 'is_admin')
 
 # CLI command to get all users
 @app.cli.command("all_users")
