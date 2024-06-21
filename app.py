@@ -2,6 +2,14 @@ from os import environ
 from datetime import datetime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+
+# Create a base class for all SQLAlchemy models
+class Base(DeclarativeBase):
+    """
+    Base class for all SQLAlchemy models in the application.
+    """
+    pass
 
 # Initialize Flask application by creating an instance of Flask class
 app = Flask(__name__)
@@ -10,7 +18,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URI")
 
 # Initialize SQLAlchemy with the Flask application
-db = SQLAlchemy(app)
+db = SQLAlchemy(model_class=Base)
 
 class User(db.Model):
     """
