@@ -1,8 +1,10 @@
 from os import environ
-from datetime import datetime
+from datetime import datetime, date
+from typing import Optional
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import String, Boolean, Text
 
 # Create a base class for all SQLAlchemy models
 class Base(DeclarativeBase):
@@ -19,6 +21,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URI")
 
 # Initialize SQLAlchemy with the Flask application
 db = SQLAlchemy(model_class=Base)
+db.init_app(app)
 
 class User(db.Model):
     """
@@ -29,15 +32,24 @@ class User(db.Model):
         username (str): The unique username for the user.
         password_hash (str): The hashed password for the user.
         email (str): The unique email address for the user.
-        is_admin (bool): A flag indicating whether the user has admin privileges.
+        is_admin (bool): A flag indicating whether the user has admin privileges (default is false).
     """
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), nullable=False, unique=True)
-    password_hash = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), nullable=False, unique=True)
-    is_admin = db.Column(db.Boolean, default=False)
+    # id = db.Column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    # username = db.Column(db.String(255), nullable=False, unique=True)
+    username: Mapped[str] = mapped_column(String(100), unique=True)
+    
+    # password_hash = db.Column(db.String(255), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(200))
+    
+    # email = db.Column(db.String(255), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(200), unique=True)
+
+    # is_admin = db.Column(db.Boolean, default=False)
+    is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
 
 class Category(db.Model):
     """
@@ -45,12 +57,14 @@ class Category(db.Model):
 
     Attributes:
         id (int): The primary key for the category.
-        name (str): The name of the category, which is non-nullable.
+        name (str): The name of the category.
     """
     __tablename__ = 'categories'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
+    # id = db.Column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    # name = db.Column(db.String(255), nullable=False)
+    name: Mapped[str] = mapped_column(String(100))
 
 class Recipe(db.Model):
     """
@@ -58,24 +72,37 @@ class Recipe(db.Model):
 
     Attributes:
         id (int): The primary key for the recipe.
-        title (str): The title of the recipe, which is non-nullable.
-        description (str): The description or instructions for the recipe.
-        is_public (bool): A flag indicating if the recipe is public or private (default is True).
-        preparation_time (int): The time required to prepare the recipe in minutes.
-        created_at (datetime): The timestamp when the recipe was created (default is current timestamp).
-        updated_at (datetime): The timestamp when the recipe was last updated.
+        title (str): The title of the recipe.
+        description (str): The description for the recipe (optional).
+        is_public (bool): A flag indicating if the recipe is public or private (default is True for public).
+        preparation_time (int): The time required to prepare the recipe in minutes (optional).
+        date_created (date): The timestamp when the recipe was created.
     """
     __tablename__ = 'recipes'
 
-    id = db.Column(db.Integer, primary_key=True)
+    # id = db.Column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+
     # author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text)
-    is_public = db.Column(db.Boolean, default=True)
+    
+    # title = db.Column(db.String(255), nullable=False)
+    title: Mapped[str] = mapped_column(String(200))
+
+    # description = db.Column(db.Text)
+    description: Mapped[Optional[str]] = mapped_column(Text())
+
+    # is_public = db.Column(db.Boolean, default=True)
+    is_public: Mapped[bool] = mapped_column(Boolean, server_default="true")
+
     # cuisine_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
-    preparation_time = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    # preparation_time = db.Column(db.Integer)
+    preparation_time: Mapped[Optional[int]]
+    
+    # created_at = db.Column(db.DateTime, default=datetime.now)
+    date_created: Mapped[date]
+
+    # updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
 class Ingredient(db.Model):
     """
@@ -83,15 +110,21 @@ class Ingredient(db.Model):
 
     Attributes:
         id (int): The primary key for the ingredient.
-        name (str): The name of the ingredient, which is non-nullable.
-        quantity (str): The quantity of the ingredient, represented as a string (nullable).
+        name (str): The name of the ingredient.
+        quantity (str): The quantity of the ingredient (optional).
     """
     __tablename__ = 'ingredients'
 
-    id = db.Column(db.Integer, primary_key=True)
+    # id = db.Column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+
     # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
-    name = db.Column(db.String(255), nullable=False)
-    quantity = db.Column(db.String(255))
+
+    # name = db.Column(db.String(255), nullable=False)
+    name: Mapped[str] = mapped_column(String(200))
+    
+    # quantity = db.Column(db.String(255))
+    quantity: Mapped[Optional[str]] = mapped_column(String(50))
 
 class Instruction(db.Model):
     """
@@ -99,15 +132,21 @@ class Instruction(db.Model):
 
     Attributes:
         id (int): The primary key for the instruction.
-        description (str): The description or step of the instruction, which is non-nullable.
-        order (int): The order or sequence number of the instruction, which is non-nullable.
+        description (str): The description or step of the instruction.
+        order (int): The order or sequence number of the instruction.
     """
     __tablename__ = 'instructions'
 
-    id = db.Column(db.Integer, primary_key=True)
+    # id = db.Column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+
     # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    order = db.Column(db.Integer, nullable=False)
+    
+    # description = db.Column(db.Text, nullable=False)
+    description: Mapped[str] = mapped_column(Text())
+    
+    # order = db.Column(db.Integer, nullable=False)
+    order: Mapped[int]
 
 class SavedRecipe(db.Model):
     """
@@ -120,11 +159,17 @@ class SavedRecipe(db.Model):
     """
     __tablename__ = 'saved_recipes'
 
-    id = db.Column(db.Integer, primary_key=True)
+    # id = db.Column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+
     # user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
-    saved_at = db.Column(db.DateTime, default=datetime.now)
-    notes = db.Column(db.Text)
+    
+    # saved_at = db.Column(db.DateTime, default=datetime.now)
+    date_saved: Mapped[date]
+
+    # notes = db.Column(db.Text)
+    notes: Mapped[Optional[str]] = mapped_column(Text())
 
 @app.cli.command('db_create')
 def db_create():
@@ -146,6 +191,7 @@ def db_create():
 
     # Define initial data lists for users, categories, recipes, ingredients, and instructions
     users = [
+        # username & email are unique for each user
         User(username='user1', password_hash='hashed_password1', email='user1@example.com'),
         User(username='user2', password_hash='hashed_password2', email='user2@example.com')
     ]
@@ -156,15 +202,18 @@ def db_create():
     ]
 
     recipes = [
-        Recipe(title='Spaghetti Carbonara', description='A classic Italian pasta dish.', is_public=True, preparation_time=30),
-        Recipe(title='Tacos', description='Delicious Mexican tacos.', is_public=True, preparation_time=20)
+        # description & preparation_time are optional
+        # is_public default value is True
+        Recipe(title='Spaghetti Carbonara', description='A classic Italian pasta dish.', date_created=date.today(), preparation_time=30),
+        Recipe(title='Tacos', date_created=date.today(), is_public=False)
     ]
 
     ingredients = [
+        # quantity is optional
         Ingredient(name='Spaghetti', quantity='200g'),
         Ingredient(name='Eggs', quantity='4'),
         Ingredient(name='Bacon', quantity='100g'),
-        Ingredient(name='Tortillas', quantity='4'),
+        Ingredient(name='Tortillas'),
         Ingredient(name='Chicken', quantity='200g')
     ]
 
