@@ -223,6 +223,26 @@ class UserSchema(ma.Schema):
         """
         fields = ('id', 'username', 'email', 'is_admin')
 
+class CategorySchema(ma.Schema):
+    """
+    Marshmallow schema for serializing and deserializing Category objects.
+    """
+    class Meta:
+        """
+        Inner class that specifies the fields to include in the schema.
+        """
+        fields = ('id', 'name')
+
+class RecipeSchema(ma.Schema):
+    """
+    Marshmallow schema for serializing and deserializing Recipe objects.
+    """
+    class Meta:
+        """
+        Inner class that specifies the fields to include in the schema.
+        """
+        fields = ('id', 'title', 'description', 'is_public')
+
 # Routes
 @app.route("/users")
 def all_users():
@@ -240,14 +260,16 @@ def all_categories():
     """
     stmt = db.select(Category)
     categories = db.session.scalars(stmt).all()
+    return CategorySchema(many=True).dump(categories)
 
-@app.cli.command("all_recipes")
+@app.route("/recipes")
 def all_recipes():
     """
     Route to fetch all recipes from the database.
     """
     stmt = db.select(Recipe)
     recipes = db.session.scalars(stmt).all()
+    return RecipeSchema(many=True).dump(recipes)
 
 @app.cli.command("all_ingredients")
 def all_ingredients():
