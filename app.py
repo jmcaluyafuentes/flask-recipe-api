@@ -248,6 +248,9 @@ class RecipeSchema(ma.Schema):
 def all_users():
     """
     Route to fetch all users from the database.
+
+    :return: A JSON representation of all user records.
+    :rtype: list of dict
     """
     stmt = db.select(User)
     users = db.session.scalars(stmt).all()
@@ -257,6 +260,9 @@ def all_users():
 def all_categories():
     """
     Route to fetch all categories from the database.
+
+    :return: A JSON representation of all category records.
+    :rtype: list of dict
     """
     stmt = db.select(Category)
     categories = db.session.scalars(stmt).all()
@@ -266,6 +272,9 @@ def all_categories():
 def all_recipes():
     """
     Route to fetch all recipes from the database.
+
+    :return: A JSON representation of all recipe records.
+    :rtype: list of dict
     """
     stmt = db.select(Recipe)
     recipes = db.session.scalars(stmt).all()
@@ -280,6 +289,7 @@ def one_user(id):
     :param id: The ID of the user to retrieve.
     :type id: int
     :return: A JSON representation of the user record.
+    :rtype: dict
     """
     # Fetch the user with the specified ID, or return a 404 error if not found
     user = db.get_or_404(User, id)
@@ -295,6 +305,7 @@ def one_category(id):
     :param id: The ID of the category to retrieve.
     :type id: int
     :return: A JSON representation of the category record.
+    :rtype: dict
     """
     # Fetch the category with the specified ID, or return a 404 error if not found
     category = db.get_or_404(Category, id)
@@ -310,6 +321,7 @@ def one_recipe(id):
     :param id: The ID of the recipe to retrieve.
     :type id: int
     :return: A JSON representation of the recipe record.
+    :rtype: dict
     """
     # Fetch the recipe with the specified ID, or return a 404 error if not found
     recipe = db.get_or_404(Recipe, id)
@@ -330,4 +342,15 @@ def index():
 
 @app.errorhandler(404)
 def not_found(err):
+    """
+    Handle 404 Not Found errors.
+
+    This function is called when a 404 error is raised.
+
+    :param err: The error that triggered this handler.
+    :type err: Exception
+    :return: A JSON response with an error message and a 404 status code.
+    :rtype: tuple(dict, int)
+    """
+    # Return a JSON response with an error message and a 404 status code
     return {'error': 'Not Found'}, 404
