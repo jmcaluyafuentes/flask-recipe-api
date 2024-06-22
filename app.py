@@ -42,9 +42,9 @@ class User(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    username: Mapped[str] = mapped_column(String(100), unique=True)
-    password_hash: Mapped[str] = mapped_column(String(200))
     email: Mapped[str] = mapped_column(String(200), unique=True)
+    password_hash: Mapped[str] = mapped_column(String(200))
+    name: Mapped[str] = mapped_column(String(100))
     is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
 
 class Category(db.Model):
@@ -160,8 +160,8 @@ def db_create():
     # Define initial data lists for users, categories, recipes, ingredients, and instructions
     users = [
         # username & email are unique for each user
-        User(username='user1', password_hash='hashed_password1', email='user1@example.com'),
-        User(username='user2', password_hash='hashed_password2', email='user2@example.com')
+        User(email='user1@example.com', password_hash='hashed_password1', name='John'),
+        User(email='user2@example.com', password_hash='hashed_password2', name='Mark')
     ]
 
     categories = [
@@ -221,7 +221,7 @@ class UserSchema(ma.Schema):
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'username', 'email', 'is_admin')
+        fields = ('id', 'email', 'name', 'is_admin')
 
 class CategorySchema(ma.Schema):
     """
