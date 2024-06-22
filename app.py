@@ -28,6 +28,7 @@ db.init_app(app)
 # Creating an instance of Marshmallow class and passing in the flask app
 ma = Marshmallow(app)
 
+# Initialize Bcrypt extension for password hashing in Flask
 bcrypt = Bcrypt(app)
 
 class User(db.Model):
@@ -163,8 +164,17 @@ def db_create():
     # Define initial data lists for users, categories, recipes, ingredients, and instructions
     users = [
         # username & email are unique for each user
-        User(email='admin@example.com', password_hash='hashed_password1', is_admin=True),
-        User(email='user@example.com', password_hash='hashed_password2', name='John')
+        # use bcrypt for slow hashing of password
+        User(
+            email='admin@example.com', 
+            password_hash=bcrypt.generate_password_hash('hashed_password1').decode('utf-8'), 
+            is_admin=True
+        ),
+        User(
+            email='user@example.com', 
+            password_hash=bcrypt.generate_password_hash('hashed_password2').decode('utf-8'), 
+            name='John'
+        )
     ]
 
     categories = [
