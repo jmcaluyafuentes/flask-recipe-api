@@ -367,3 +367,18 @@ def not_found(err):
     """
     # Return a JSON response with an error message and a 404 status code
     return {'error': 'Not Found'}, 404
+
+@app.errorhandler(405)
+def method_not_allowed(err):
+    """
+    Handle 405 Method Not Allowed errors.
+
+    This function is called when a 405 error is raised.
+
+    :param err: The error that triggered this handler.
+    :type err: Exception
+    :return: A JSON response with an error message and a 405 status code.
+    :rtype: tuple(dict, int)
+    """
+    # Return a JSON response with an error message and a 404 status code
+    return {'error': 'Method Not Allowed'}, 405
