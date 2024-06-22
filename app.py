@@ -243,7 +243,7 @@ class RecipeSchema(ma.Schema):
         """
         fields = ('id', 'title', 'description', 'is_public')
 
-# Routes
+# Routes to get all records
 @app.route("/users")
 def all_users():
     """
@@ -270,6 +270,52 @@ def all_recipes():
     stmt = db.select(Recipe)
     recipes = db.session.scalars(stmt).all()
     return RecipeSchema(many=True).dump(recipes)
+
+# Routes to get a record based on id
+@app.route("/users/<int:id>")
+def one_user(id):
+    """
+    Retrieve a user record by its id.
+
+    :param id: The ID of the user to retrieve.
+    :type id: int
+    :return: A JSON representation of the user record.
+    """
+    # Fetch the user with the specified ID, or return a 404 error if not found
+    user = db.get_or_404(User, id)
+
+    # Serialize the user record to JSON format
+    return UserSchema().dump(user)
+
+@app.route("/categories/<int:id>")
+def one_category(id):
+    """
+    Retrieve a category record by its ID.
+
+    :param id: The ID of the category to retrieve.
+    :type id: int
+    :return: A JSON representation of the category record.
+    """
+    # Fetch the category with the specified ID, or return a 404 error if not found
+    category = db.get_or_404(Category, id)
+
+    # Serialize the category record to JSON format
+    return CategorySchema().dump(category)
+
+@app.route("/recipes/<int:id>")
+def one_recipe(id):
+    """
+    Retrieve a recipe record by its ID.
+
+    :param id: The ID of the recipe to retrieve.
+    :type id: int
+    :return: A JSON representation of the recipe record.
+    """
+    # Fetch the recipe with the specified ID, or return a 404 error if not found
+    recipe = db.get_or_404(Recipe, id)
+
+    # Serialize the recipe record to JSON format
+    return RecipeSchema().dump(recipe)
 
 # Basic route for the index page to test flask application is working
 @app.route('/')
