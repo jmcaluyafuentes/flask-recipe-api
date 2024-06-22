@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, Text
 from flask_marshmallow import Marshmallow
+from flask_bcrypt import Bcrypt
 
 # Create a base class for all SQLAlchemy models
 class Base(DeclarativeBase):
@@ -26,6 +27,8 @@ db.init_app(app)
 
 # Creating an instance of Marshmallow class and passing in the flask app
 ma = Marshmallow(app)
+
+bcrypt = Bcrypt(app)
 
 class User(db.Model):
     """
