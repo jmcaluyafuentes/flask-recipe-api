@@ -44,7 +44,7 @@ class User(db.Model):
 
     email: Mapped[str] = mapped_column(String(200), unique=True)
     password_hash: Mapped[str] = mapped_column(String(200))
-    name: Mapped[str] = mapped_column(String(100))
+    name: Mapped[Optional[str]] = mapped_column(String(100))
     is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
 
 class Category(db.Model):
@@ -160,8 +160,8 @@ def db_create():
     # Define initial data lists for users, categories, recipes, ingredients, and instructions
     users = [
         # username & email are unique for each user
-        User(email='user1@example.com', password_hash='hashed_password1', name='John'),
-        User(email='user2@example.com', password_hash='hashed_password2', name='Mark')
+        User(email='admin@example.com', password_hash='hashed_password1', is_admin=True),
+        User(email='user@example.com', password_hash='hashed_password2', name='John')
     ]
 
     categories = [
