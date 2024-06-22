@@ -327,3 +327,7 @@ def index():
         str: A simple HTML string for the index page.
     """
     return '<h1>Flask Recipe API</h1>'
+
+@app.errorhandler(404)
+def not_found(err):
+    return {'error': 'Not Found'}, 404
