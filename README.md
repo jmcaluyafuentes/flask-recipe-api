@@ -14,14 +14,14 @@ This API web server, named Flask Recipe API, is designed to manage a recipe appl
 
 1. User Management
 
-    - Admin users can add new users to the system.
+    - Admin users can add new users to the platform.
     - User authentication and authorization to ensure secure access to the API endpoints.
 
 2. Recipe Management
 
     - Users can create, update, and delete their own recipes.
     - Recipes can be marked as public or private.
-    - Admins have the ability to delete any public recipe.
+    - Admins have the ability to delete any public recipe (e.g., if it did not comply with the guidelines).
 
 3. Recipe Discovery
 
@@ -42,6 +42,14 @@ https://github.com/jmcaluyafuentes/flask-recipe-api
 ## Requirements
 
 ### R1: Explain the problem that this app will solve, and explain how this app solves or addresses the problem.
+
+In today’s fast-paced world, many people struggle with meal planning and managing recipes, which my family also encounters. One of the problems that this app solves is the lack of organization in managing recipes. The abundance of recipes from diverse sources and blogs on the internet often overwhelms and confuses us when trying to find cooking ideas. The app offers user accounts, allowing individuals to consolidate and manage their recipes in a single, centralized location. This feature enables users to conveniently access their preferred recipes whenever they need them.
+
+Meal planning is also a challenge that this app aims to solve. Deciding what to cook, especially when busy, can be quite time-consuming. To solve this problem, the app includes a feature that enables users to randomly select a recipe from their collection or from publicly available recipes. This simplifies the decision-making process, making it easier for users to decide on their next meal quickly. Additionally, users have the option to save public recipes to their personal accounts, allowing them to build a curated collection of meals that align with their preferences and support their meal planning efforts.
+
+Customized searching is helpful for users with specific dietary preferences or time constraints. This app has filtering options that allow users to search for recipes based on criteria such as type of cuisine and preparation time. This feature helps users find recipes that match their specific needs and preferences.
+
+To maintain the integrity of the platform, this app includes several administrative features. Admins can add users to the platform to ensure a controlled and secure user base. The admins have the authority to delete public recipes that do not comply with the guidelines. Users also have control over their accounts, with the ability to create, update, and delete their own recipes.
 
 ### R2: Describe the way tasks are allocated and tracked in your project.
 
