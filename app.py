@@ -8,6 +8,7 @@ from sqlalchemy import String, Boolean, Text
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from marshmallow.exceptions import ValidationError
 
 # Create a base class for all SQLAlchemy models
 class Base(DeclarativeBase):
@@ -44,7 +45,7 @@ class User(db.Model):
     Attributes:
         id (int): The primary key for the user.
         username (str): The unique username for the user.
-        password_hash (str): The hashed password for the user.
+        password (str): The hashed password for the user.
         email (str): The unique email address for the user.
         is_admin (bool): A flag indicating whether the user has admin privileges (default is false).
     """
@@ -53,7 +54,7 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     email: Mapped[str] = mapped_column(String(200), unique=True)
-    password_hash: Mapped[str] = mapped_column(String(200))
+    password: Mapped[str] = mapped_column(String(200))
     name: Mapped[Optional[str]] = mapped_column(String(100))
     is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
 
@@ -173,12 +174,12 @@ def db_create():
         # use bcrypt for slow hashing of password
         User(
             email='admin@example.com', 
-            password_hash=bcrypt.generate_password_hash('hashed_password1').decode('utf-8'), 
+            password=bcrypt.generate_password_hash('hashed_password1').decode('utf-8'), 
             is_admin=True
         ),
         User(
             email='user@example.com', 
-            password_hash=bcrypt.generate_password_hash('hashed_password2').decode('utf-8'), 
+            password=bcrypt.generate_password_hash('hashed_password2').decode('utf-8'), 
             name='John'
         )
     ]
@@ -240,7 +241,7 @@ class UserSchema(ma.Schema):
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'email', 'name', 'is_admin')
+        fields = ('id', 'email', 'name', 'password', 'is_admin')
 
 class CategorySchema(ma.Schema):
     """
@@ -352,13 +353,12 @@ def one_recipe(id):
 @app.route('/users/login', methods=['POST'])
 def login():
     # Get the email and password from the request
-    email = request.json['email']
-    password = request.json['password']
+    params = UserSchema(only=['email', 'password']).load(request.json, unknown="exclude")
 
     # Compare email and password against the database
-    stmt = db.select(User).where(User.email == email)
+    stmt = db.select(User).where(User.email == params['email'])
     user = db.session.scalar(stmt)
-    if user and bcrypt.check_password_hash(user.password_hash, password):
+    if user and bcrypt.check_password_hash(user.password, params['password']):
         # Generate JWT
         token = create_access_token(identity=user.id, expires_delta=timedelta(hours=3))
         # Return the JWT
@@ -407,3 +407,12 @@ def method_not_allowed(err):
     """
     # Return a JSON response with an error message and a 404 status code
     return {'error': 'Method Not Allowed'}, 405
+
+@app.errorhandler(KeyError)
+def missing_key(err):
+    return {"error": f"Missing field: {str(err)}"}
+
+@app.errorhandler(ValidationError)
+def invalid_request(err):
+    return {"error": vars(err)['messages']}
+
