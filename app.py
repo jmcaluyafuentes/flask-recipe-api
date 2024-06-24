@@ -1,5 +1,5 @@
 from os import environ
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
@@ -360,7 +360,7 @@ def login():
     user = db.session.scalar(stmt)
     if user and bcrypt.check_password_hash(user.password_hash, password):
         # Generate JWT
-        token = create_access_token(identity=user.id)
+        token = create_access_token(identity=user.id, expires_delta=timedelta(hours=3))
         # Return the JWT
         return {'token': token}
     else:
