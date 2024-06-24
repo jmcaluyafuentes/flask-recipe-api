@@ -1,7 +1,7 @@
 from os import environ
 from datetime import date
 from typing import Optional
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, Text
@@ -341,6 +341,23 @@ def one_recipe(id):
 
     # Serialize the recipe record to JSON format
     return RecipeSchema().dump(recipe)
+
+@app.route('/users/login', methods=['POST'])
+def login():
+    # Get the email and password from the request
+    email = request.json['email']
+    password = request.json['password']
+
+    # Compare email and password against db
+    stmt = db.select(User).where(User.email == email)
+    user = db.session.scalar(stmt)
+    if user and bcrypt.check_password_hash(user.password_hash, password):
+        # Generate JWT
+        # Return the JWT
+        return 'ok'
+    else:
+        # Error handling (user not found, wrong username or password)
+        return {'error': 'Invalid email or password'}, 401
 
 # Basic route for the index page to test flask application is working
 @app.route('/')
