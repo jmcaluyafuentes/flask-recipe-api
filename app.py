@@ -7,7 +7,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, Text
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 
 # Create a base class for all SQLAlchemy models
 class Base(DeclarativeBase):
@@ -264,6 +264,7 @@ class RecipeSchema(ma.Schema):
 
 # Routes to get all records
 @app.route("/users")
+@jwt_required()
 def all_users():
     """
     Route to fetch all users from the database.
