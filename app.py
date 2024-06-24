@@ -7,6 +7,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, Text
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager, create_access_token
 
 # Create a base class for all SQLAlchemy models
 class Base(DeclarativeBase):
@@ -17,6 +18,8 @@ class Base(DeclarativeBase):
 
 # Initialize Flask application by creating an instance of Flask class
 app = Flask(__name__)
+
+app.config['JWT_SECRET_KEY'] = environ.get("JWT_KEY")
 
 # Set the database URI from the environment variable
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URI")
@@ -30,6 +33,9 @@ ma = Marshmallow(app)
 
 # Initialize Bcrypt extension for password hashing in Flask
 bcrypt = Bcrypt(app)
+
+# Initialize JWTManager with the Flask application
+jwt = JWTManager(app)
 
 class User(db.Model):
     """
@@ -348,13 +354,14 @@ def login():
     email = request.json['email']
     password = request.json['password']
 
-    # Compare email and password against db
+    # Compare email and password against the database
     stmt = db.select(User).where(User.email == email)
     user = db.session.scalar(stmt)
     if user and bcrypt.check_password_hash(user.password_hash, password):
         # Generate JWT
+        token = create_access_token(identity=user.id)
         # Return the JWT
-        return 'ok'
+        return {'token': token}
     else:
         # Error handling (user not found, wrong username or password)
         return {'error': 'Invalid email or password'}, 401
