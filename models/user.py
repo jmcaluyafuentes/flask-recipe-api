@@ -1,3 +1,7 @@
+"""
+This module defines SQLAlchemy models and Marshmallow schemas for handling User data.
+"""
+
 # Import statements
 from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column
@@ -23,6 +27,9 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(String(200))
     name: Mapped[Optional[str]] = mapped_column(String(100))
     is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
+
+# Marshmallow schema (NOT a db schema)
+# Used by Marshmallow to serialize and/or validate our SQLAlchemy models
 
 class UserSchema(ma.Schema):
     """

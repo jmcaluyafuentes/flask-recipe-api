@@ -1,3 +1,7 @@
+"""
+This script initializes a Flask application with various extensions and configuration settings.
+"""
+
 # Import statements
 from os import environ
 from flask import Flask

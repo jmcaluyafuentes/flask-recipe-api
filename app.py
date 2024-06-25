@@ -16,22 +16,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Boolean, Text
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from marshmallow.exceptions import ValidationError
-from models.user import User, UserSchema
 from init import db, ma, app, bcrypt
-
-class Category(db.Model):
-    """
-    Category model representing the categories table in the database.
-
-    Attributes:
-        id (int): The primary key for the category.
-        name (str): The name of the category.
-    """
-    __tablename__ = 'categories'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    name: Mapped[str] = mapped_column(String(100))
+from models.user import User, UserSchema
+from models.category import Category, CategorySchema
 
 class Recipe(db.Model):
     """
@@ -194,16 +181,6 @@ def db_create():
 
 # Marshmallow schema (NOT a db schema)
 # Used by Marshmallow to serialize and/or validate our SQLAlchemy models
-
-class CategorySchema(ma.Schema):
-    """
-    Marshmallow schema for serializing and deserializing Category objects.
-    """
-    class Meta:
-        """
-        Inner class that specifies the fields to include in the schema.
-        """
-        fields = ('id', 'name')
 
 class RecipeSchema(ma.Schema):
     """
