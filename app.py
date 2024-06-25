@@ -22,25 +22,7 @@ from models.category import Category, CategorySchema
 from models.recipe import Recipe, RecipeSchema
 from models.ingredient import Ingredient
 from models.instruction import Instruction
-
-class SavedRecipe(db.Model):
-    """
-    SavedRecipe model representing the saved_recipes table in the database.
-
-    Attributes:
-        id (int): The primary key for the saved recipe entry.
-        date_saved (datetime): The timestamp when the recipe was saved (default is current timestamp).
-        notes (str): Optional notes or comments about the saved recipe.
-    """
-    __tablename__ = 'saved_recipes'
-
-    # id = db.Column(db.Integer, primary_key=True)
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    # user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
-    date_saved: Mapped[date]
-    notes: Mapped[Optional[str]] = mapped_column(Text())
+from models.savedrecipe import SavedRecipe
 
 @app.cli.command('db_create')
 def db_create():
