@@ -15,30 +15,19 @@ from flask_jwt_extended import create_access_token
 from marshmallow.exceptions import ValidationError
 from init import db, app, bcrypt
 from models.user import User, UserSchema
-from models.category import Category, CategorySchema
 from models.recipe import Recipe, RecipeSchema
 # from models.ingredient import Ingredient
 # from models.instruction import Instruction
 # from models.saved_recipe import SavedRecipe
 from blueprints.cli_bp import db_commands
 from blueprints.users_bp import users_bp
+from blueprints.categories_bp import categories_bp
 
 app.register_blueprint(db_commands)
 app.register_blueprint(users_bp)
+app.register_blueprint(categories_bp)
 
 # Route to get all records
-@app.route("/categories")
-def all_categories():
-    """
-    Route to fetch all categories from the database.
-
-    :return: A JSON representation of all category records.
-    :return_type: list of dict
-    """
-    stmt = db.select(Category)
-    categories = db.session.scalars(stmt).all()
-    return CategorySchema(many=True).dump(categories)
-
 @app.route("/recipes")
 def all_recipes():
     """
@@ -52,22 +41,6 @@ def all_recipes():
     return RecipeSchema(many=True).dump(recipes)
 
 # Route to get a record based on id
-@app.route("/categories/<int:cat_id>")
-def one_category(cat_id):
-    """
-    Retrieve a category record by its ID.
-
-    :param id: The ID of the category to retrieve.
-    :type id: int
-    :return: A JSON representation of the category record.
-    :return_type: dict
-    """
-    # Fetch the category with the specified ID, or return a 404 error if not found
-    category = db.get_or_404(Category, cat_id)
-
-    # Serialize the category record to JSON format
-    return CategorySchema().dump(category)
-
 @app.route("/recipes/<int:recipe_id>")
 def one_recipe(recipe_id):
     """
@@ -126,7 +99,7 @@ def index():
     return '<h1>Flask Recipe API</h1>'
 
 @app.errorhandler(404)
-def not_found(err):
+def not_found(_):
     """
     Handle 404 Not Found errors.
 
@@ -141,7 +114,7 @@ def not_found(err):
     return {'error': 'Not Found'}, 404
 
 @app.errorhandler(405)
-def method_not_allowed(err):
+def method_not_allowed(_):
     """
     Handle 405 Method Not Allowed errors.
 
@@ -181,4 +154,5 @@ def invalid_request(err):
     """
     return {"error": vars(err)['messages']}
 
+# Print all routes with endpoints that are registered in the app
 print(app.url_map)
