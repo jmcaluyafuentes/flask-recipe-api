@@ -1,62 +1,23 @@
-from os import environ
+"""
+Flask Recipe API
+
+Term 2, Assignment 2
+Web Development Accelerated Program
+Coder Academy
+
+Student: John Fuentes
+"""
+
+# Import statements
 from datetime import date, timedelta
 from typing import Optional
-from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from flask import request
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Boolean, Text
-from flask_marshmallow import Marshmallow
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from marshmallow.exceptions import ValidationError
-
-# Create a base class for all SQLAlchemy models
-class Base(DeclarativeBase):
-    """
-    Base class for all SQLAlchemy models in the application.
-    """
-    pass
-
-# Initialize Flask application by creating an instance of Flask class
-app = Flask(__name__)
-
-app.config['JWT_SECRET_KEY'] = environ.get("JWT_KEY")
-
-# Set the database URI from the environment variable
-app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DB_URI")
-
-# Initialize SQLAlchemy with the Flask application
-db = SQLAlchemy(model_class=Base)
-db.init_app(app)
-
-# Creating an instance of Marshmallow class and passing in the flask app
-ma = Marshmallow(app)
-
-# Initialize Bcrypt extension for password hashing in Flask
-bcrypt = Bcrypt(app)
-
-# Initialize JWTManager with the Flask application
-jwt = JWTManager(app)
-
-class User(db.Model):
-    """
-    User model representing the users table in the database.
-
-    Attributes:
-        id (int): The primary key for the user.
-        username (str): The unique username for the user.
-        password (str): The hashed password for the user.
-        email (str): The unique email address for the user.
-        is_admin (bool): A flag indicating whether the user has admin privileges (default is false).
-    """
-    __tablename__ = 'users'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    email: Mapped[str] = mapped_column(String(200), unique=True)
-    password: Mapped[str] = mapped_column(String(200))
-    name: Mapped[Optional[str]] = mapped_column(String(100))
-    is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
+from models.user import User, UserSchema
+from init import db, ma, app, bcrypt
 
 class Category(db.Model):
     """
@@ -233,15 +194,6 @@ def db_create():
 
 # Marshmallow schema (NOT a db schema)
 # Used by Marshmallow to serialize and/or validate our SQLAlchemy models
-class UserSchema(ma.Schema):
-    """
-    Marshmallow schema for serializing and deserializing User objects.
-    """
-    class Meta:
-        """
-        Inner class that specifies the fields to include in the schema.
-        """
-        fields = ('id', 'email', 'name', 'password', 'is_admin')
 
 class CategorySchema(ma.Schema):
     """
