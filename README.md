@@ -53,35 +53,44 @@ To maintain the integrity of the platform, this app includes several administrat
 
 ### R2: Describe the way tasks are allocated and tracked in your project.
 
-I used Trello in managing my tasks due to its straightforward and user-friendly components.
+I used Trello in managing my tasks due to its good visual, straightforward and user-friendly components.
 
 Link to my Trello board --> https://trello.com/b/lqrZakZf/t2a2-api-web-server
 
-I structured my Trello board into three primary lists: To Do, In Progress, and Completed. Before creating the tasks, I reviewed my notes from previous classes to plan my workflow. Initially, I placed all main tasks (represented by cards) into the To Do section. In order for me to manage the project effectively, I broke down each card into actionable steps using Trello's checklist feature. Additionally, I set due dates to manage my time effectively and to avoid delays. Below is an example to illustrate how I organized a main task along with its corresponding subtasks:
+I structured my Trello board into three primary lists: To Do, In Progress, and Completed. Before creating the tasks, I reviewed my notes from previous classes to plan my workflow. Initially, I placed all main tasks (represented by cards) into the To Do section. In order for me to manage the project effectively, I broke down each card into actionable steps using Trello's checklist feature. Additionally, I set due dates to manage my time effectively. Below is an example to illustrate how I organized a main task along with its corresponding subtasks:
 
-![A card with sub tasks](./markdown-images/card-sample.png)
+![Trello sample card with subtasks](./markdown-images/card-sample.png)
 
-After completing my planning phase, I moved relevant cards from the To Do section to the In Progress section to initiate work. Here's a snapshot of my board as of June 15th:
+After completing the planning phase, I moved the relevant cards from the To Do section to the In Progress section to initiate work. Here's a snapshot of my board as of June 15th:
 
 ![A card with sub tasks](./markdown-images/trello-1-15June.png)
 
 Once I completed all the subtasks on a card, I move it to the Completed section to clear my focus and concentrate on remaining tasks. Here's an example of a card "Design the database & make ERD" and its activity log:
 
-![A card with sub tasks](./markdown-images/card-design-database.png)
+![Trello sample of completed card](./markdown-images/card-design-database.png)
 
-![A card with sub tasks](./markdown-images/card-design-database-log.png)
+![Trello sample of card activity log](./markdown-images/card-design-database-log.png)
 
 Updated progress on my board as of 19th of June:
 
-![A card with sub tasks](./markdown-images/trello-2-19June.png)
+![Trello board on 19th June](./markdown-images/trello-2-19June.png)
 
 Updated progress on my board as of 22nd of June:
 
-![A card with sub tasks](./markdown-images/trello-3-22June.png)
+![Trello board on 22nd June](./markdown-images/trello-3-22June.png)
 
 There were instances where I needed to extend the due dates because of the unforeseen complexities or personal reasons. In such cases, I made sure to review the tasks and adjust the timelines reasonably. Additionally, I encountered situations where I realized some subtasks were overlooked during the initial planning phase and prompted me to add them later. Below is the updated progress of my board as of 25th of June:
 
-![A card with sub tasks](./markdown-images/trello-4-25June.png)
+![Trello board on 25th June](./markdown-images/trello-4-25June.png)
+
+In addition to task management in Trello, we held daily standups on Discord. These standups were beneficial as it allowed me to evaluate my progress by answering key questions. It helped me process my thoughts and assess my remaining tasks to determine if I was on track, if there were other tasks I needed to add, or if I needed to adjust my due dates. Standups provided a daily reminder to keep me focused on my goals. Here are some snapshots:
+
+![Daily standups on 24th June](./markdown-images/standups-1.png)
+
+I also used Git for source control and regularly pushed my changes to a GitHub repository. This allowed me to track the changes and their descriptions effectively. In case of errors while coding, I could revert to a previous version, which was particularly beneficial given the modular nature of my project. Additionally, the GitHub repository served as a backup of my codebase and I could retrieve it in case of issues with my local copies such as corruption or loss. Here is a sample snapshot of my commits in GitHub:
+
+
+
 
 ### R3: List and explain the third-party services, packages and dependencies used in this app.
 
