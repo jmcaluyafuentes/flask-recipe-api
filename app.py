@@ -21,24 +21,7 @@ from models.user import User, UserSchema
 from models.category import Category, CategorySchema
 from models.recipe import Recipe, RecipeSchema
 from models.ingredient import Ingredient
-
-class Instruction(db.Model):
-    """
-    Instruction model representing the instructions table in the database.
-
-    Attributes:
-        id (int): The primary key for the instruction.
-        description (str): The description or step of the instruction.
-        order (int): The order or sequence number of the instruction.
-    """
-    __tablename__ = 'instructions'
-
-    # id = db.Column(db.Integer, primary_key=True)
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
-    description: Mapped[str] = mapped_column(Text())
-    order: Mapped[int]
+from models.instruction import Instruction
 
 class SavedRecipe(db.Model):
     """
@@ -139,9 +122,6 @@ def db_create():
 
     # db.session.add_all(saved_recipes)
     # db.session.commit()
-
-# Marshmallow schema (NOT a db schema)
-# Used by Marshmallow to serialize and/or validate our SQLAlchemy models
 
 def admin_only(fn):
     """
