@@ -33,7 +33,7 @@ def all_categories():
     Route to fetch all categories from the database.
 
     :return: A JSON representation of all category records.
-    :rtype: list of dict
+    :return_type: list of dict
     """
     stmt = db.select(Category)
     categories = db.session.scalars(stmt).all()
@@ -45,41 +45,41 @@ def all_recipes():
     Route to fetch all recipes from the database.
 
     :return: A JSON representation of all recipe records.
-    :rtype: list of dict
+    :return_type: list of dict
     """
     stmt = db.select(Recipe)
     recipes = db.session.scalars(stmt).all()
     return RecipeSchema(many=True).dump(recipes)
 
 # Route to get a record based on id
-@app.route("/categories/<int:id>")
-def one_category(id):
+@app.route("/categories/<int:cat_id>")
+def one_category(cat_id):
     """
     Retrieve a category record by its ID.
 
     :param id: The ID of the category to retrieve.
     :type id: int
     :return: A JSON representation of the category record.
-    :rtype: dict
+    :return_type: dict
     """
     # Fetch the category with the specified ID, or return a 404 error if not found
-    category = db.get_or_404(Category, id)
+    category = db.get_or_404(Category, cat_id)
 
     # Serialize the category record to JSON format
     return CategorySchema().dump(category)
 
-@app.route("/recipes/<int:id>")
-def one_recipe(id):
+@app.route("/recipes/<int:recipe_id>")
+def one_recipe(recipe_id):
     """
     Retrieve a recipe record by its ID.
 
     :param id: The ID of the recipe to retrieve.
     :type id: int
     :return: A JSON representation of the recipe record.
-    :rtype: dict
+    :return_type: dict
     """
     # Fetch the recipe with the specified ID, or return a 404 error if not found
-    recipe = db.get_or_404(Recipe, id)
+    recipe = db.get_or_404(Recipe, recipe_id)
 
     # Serialize the recipe record to JSON format
     return RecipeSchema().dump(recipe)
@@ -96,7 +96,8 @@ def login():
 
     Returns:
         dict: A dictionary containing the JWT if authentication is successful.
-        tuple: A dictionary containing an error message and an HTTP status code if authentication fails.
+        tuple: A dictionary containing an error message
+            and an HTTP status code if authentication fails.
     """
     # Get the email and password from the request
     params = UserSchema(only=['email', 'password']).load(request.json, unknown="exclude")
@@ -134,7 +135,7 @@ def not_found(err):
     :param err: The error that triggered this handler.
     :type err: Exception
     :return: A JSON response with an error message and a 404 status code.
-    :rtype: tuple(dict, int)
+    :return_type: tuple(dict, int)
     """
     # Return a JSON response with an error message and a 404 status code
     return {'error': 'Not Found'}, 404
@@ -149,16 +150,34 @@ def method_not_allowed(err):
     :param err: The error that triggered this handler.
     :type err: Exception
     :return: A JSON response with an error message and a 405 status code.
-    :rtype: tuple(dict, int)
+    :return_type: tuple(dict, int)
     """
     # Return a JSON response with an error message and a 404 status code
     return {'error': 'Method Not Allowed'}, 405
 
 @app.errorhandler(KeyError)
 def missing_key(err):
+    """
+    This function handles KeyError exceptions by returning a JSON response
+    with an error message indicating the missing field.
+
+    :param err: The KeyError exception that was raised.
+    :type err: KeyError
+    :return: A JSON response with an error message indicating the missing field.
+    :return_type: dict
+    """
     return {"error": f"Missing field: {str(err)}"}
 
 @app.errorhandler(ValidationError)
 def invalid_request(err):
+    """
+    This function handles ValidationError exceptions by returning a JSON response
+    with an error message indicating the validation errors.
+
+    :param err: The ValidationError exception that was raised.
+    :type err: ValidationError
+    :return: A JSON response with the validation error messages.
+    :return_type: dict
+    """
     return {"error": vars(err)['messages']}
 
