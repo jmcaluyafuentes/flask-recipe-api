@@ -13,30 +13,14 @@ from datetime import date, timedelta
 from typing import Optional
 from flask import request
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Text
+from sqlalchemy import Text
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from marshmallow.exceptions import ValidationError
 from init import db, app, bcrypt
 from models.user import User, UserSchema
 from models.category import Category, CategorySchema
 from models.recipe import Recipe, RecipeSchema
-
-class Ingredient(db.Model):
-    """
-    Ingredient model representing the ingredients table in the database.
-
-    Attributes:
-        id (int): The primary key for the ingredient.
-        name (str): The name of the ingredient.
-        quantity (str): The quantity of the ingredient (optional).
-    """
-    __tablename__ = 'ingredients'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
-    name: Mapped[str] = mapped_column(String(200))
-    quantity: Mapped[Optional[str]] = mapped_column(String(50))
+from models.ingredient import Ingredient
 
 class Instruction(db.Model):
     """

@@ -1,5 +1,5 @@
 """
-This module defines SQLAlchemy models and Marshmallow schemas for handling Category data.
+This module defines SQLAlchemy models and Marshmallow schemas for handling Recipe data.
 """
 
 # Import statements
