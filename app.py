@@ -15,47 +15,19 @@ from flask_jwt_extended import create_access_token
 from marshmallow.exceptions import ValidationError
 from init import db, app, bcrypt
 from models.user import User, UserSchema
-from models.recipe import Recipe, RecipeSchema
 # from models.ingredient import Ingredient
 # from models.instruction import Instruction
 # from models.saved_recipe import SavedRecipe
 from blueprints.cli_bp import db_commands
 from blueprints.users_bp import users_bp
 from blueprints.categories_bp import categories_bp
+from blueprints.recipes_bp import recipes_bp
 
+# Register the blueprints with the Flask application
 app.register_blueprint(db_commands)
 app.register_blueprint(users_bp)
 app.register_blueprint(categories_bp)
-
-# Route to get all records
-@app.route("/recipes")
-def all_recipes():
-    """
-    Route to fetch all recipes from the database.
-
-    :return: A JSON representation of all recipe records.
-    :return_type: list of dict
-    """
-    stmt = db.select(Recipe)
-    recipes = db.session.scalars(stmt).all()
-    return RecipeSchema(many=True).dump(recipes)
-
-# Route to get a record based on id
-@app.route("/recipes/<int:recipe_id>")
-def one_recipe(recipe_id):
-    """
-    Retrieve a recipe record by its ID.
-
-    :param id: The ID of the recipe to retrieve.
-    :type id: int
-    :return: A JSON representation of the recipe record.
-    :return_type: dict
-    """
-    # Fetch the recipe with the specified ID, or return a 404 error if not found
-    recipe = db.get_or_404(Recipe, recipe_id)
-
-    # Serialize the recipe record to JSON format
-    return RecipeSchema().dump(recipe)
+app.register_blueprint(recipes_bp)
 
 @app.route('/users/login', methods=['POST'])
 def login():
