@@ -263,9 +263,34 @@ class RecipeSchema(ma.Schema):
         """
         fields = ('id', 'title', 'description', 'is_public')
 
+def admin_only(fn):
+    """
+    Decorator to restrict access to admin users only.
+
+    Returns:
+        function: The inner function that performs the admin check and
+                either executes the decorated function or returns an
+                error message.
+    """
+    @jwt_required()
+    def inner():
+        # Ensure the user is an admin
+        user_id = get_jwt_identity()
+        # Query: Fetch a user based on JWT token subject
+        stmt = db.select(User).where(User.id == user_id, User.is_admin)
+        # Execute query (scalar)
+        user = db.session.scalar(stmt)
+        # if (user) return users else return error
+        if (user):
+            return fn()
+        else:
+            return {'error': 'You must be an admin to access this resource'}, 403    
+
+    return inner
+
 # Routes to get all records
 @app.route("/users")
-@jwt_required()
+@admin_only
 def all_users():
     """
     Route to fetch all users from the database.
@@ -273,19 +298,9 @@ def all_users():
     :return: A JSON representation of all user records.
     :rtype: list of dict
     """
-    # Ensure the user is an admin
-    user_id = get_jwt_identity()
-    # Query: Fetch a user based on JWT token subject
-    stmt = db.select(User).where(User.id == user_id, User.is_admin)
-    # Execute query (scalar)
-    user = db.session.scalar(stmt)
-    # if (user) return users else return error
-    if (user):
-        stmt = db.select(User)
-        users = db.session.scalars(stmt).all()
-        return UserSchema(many=True).dump(users)
-    else:
-        return {'error': 'You must be an admin to access this resource'}, 403
+    stmt = db.select(User)
+    users = db.session.scalars(stmt).all()
+    return UserSchema(many=True).dump(users)
 
 @app.route("/categories")
 def all_categories():
