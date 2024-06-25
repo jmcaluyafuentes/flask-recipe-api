@@ -4,6 +4,10 @@ Term 2, Assignment 2
 Diploma of IT - Web Development  
 Coder Academy
 
+## Github Repository
+
+https://github.com/jmcaluyafuentes/flask-recipe-api
+
 ## Purpose
 
 This API web server is an assignment for Term 2 in the Coder Academy Diploma of IT. It aims to provide students with practical experience in developing a fully functional web application backend using modern web development technologies and best practices. My project involves creating a recipe management system that allows users to manage and discover recipes, leveraging Flask for the web framework and PostgreSQL for the relational database management system.
@@ -35,15 +39,11 @@ This API web server, named Flask Recipe API, is designed to manage a recipe appl
     - Recipes consist of step-by-step instructions that are ordered to ensure clarity.
     - Users can leave personal notes on saved recipes for future reference.
 
-## Github Repository
-
-https://github.com/jmcaluyafuentes/flask-recipe-api
-
 ## Requirements
 
 ### R1: Explain the problem that this app will solve, and explain how this app solves or addresses the problem.
 
-In today’s fast-paced world, many people struggle with meal planning and managing recipes, which my family also encounters. One of the problems that this app solves is the lack of organization in managing recipes. The abundance of recipes from diverse sources and blogs on the internet often overwhelms and confuses us when trying to find cooking ideas. The app offers user accounts, allowing individuals to consolidate and manage their recipes in a single, centralized location. This feature enables users to conveniently access their preferred recipes whenever they need them.
+In our busy lives, many people, including my family, often struggle in planning meals planning and managing recipes. One of the problems that this app solves is the lack of organization in managing recipes. The abundance of recipes from diverse sources and blogs on the internet often overwhelms and confuses us when trying to find cooking ideas. The app offers user accounts, allowing individuals to consolidate and manage their recipes in a single, centralized location. This feature enables users to conveniently access their preferred recipes whenever they need them.
 
 Meal planning is also a challenge that this app aims to solve. Deciding what to cook, especially when busy, can be quite time-consuming. To solve this problem, the app includes a feature that enables users to randomly select a recipe from their collection or from publicly available recipes. This simplifies the decision-making process, making it easier for users to decide on their next meal quickly. Additionally, users have the option to save public recipes to their personal accounts, allowing them to build a curated collection of meals that align with their preferences and support their meal planning efforts.
 
@@ -52,6 +52,36 @@ Customized searching is helpful for users with specific dietary preferences or t
 To maintain the integrity of the platform, this app includes several administrative features. Admins can add users to the platform to ensure a controlled and secure user base. The admins have the authority to delete public recipes that do not comply with the guidelines. Users also have control over their accounts, with the ability to create, update, and delete their own recipes.
 
 ### R2: Describe the way tasks are allocated and tracked in your project.
+
+I used Trello in managing my tasks due to its straightforward and user-friendly components.
+
+Link to my Trello board --> https://trello.com/b/lqrZakZf/t2a2-api-web-server
+
+I structured my Trello board into three primary lists: To Do, In Progress, and Completed. Before creating the tasks, I reviewed my notes from previous classes to plan my workflow. Initially, I placed all main tasks (represented by cards) into the To Do section. In order for me to manage the project effectively, I broke down each card into actionable steps using Trello's checklist feature. Additionally, I set due dates to manage my time effectively and to avoid delays. Below is an example to illustrate how I organized a main task along with its corresponding subtasks:
+
+![A card with sub tasks](./markdown-images/card-sample.png)
+
+After completing my planning phase, I moved relevant cards from the To Do section to the In Progress section to initiate work. Here's a snapshot of my board as of June 15th:
+
+![A card with sub tasks](./markdown-images/trello-1-15June.png)
+
+Once I completed all the subtasks on a card, I move it to the Completed section to clear my focus and concentrate on remaining tasks. Here's an example of a card "Design the database & make ERD" and its activity log:
+
+![A card with sub tasks](./markdown-images/card-design-database.png)
+
+![A card with sub tasks](./markdown-images/card-design-database-log.png)
+
+Updated progress on my board as of 19th of June:
+
+![A card with sub tasks](./markdown-images/trello-2-19June.png)
+
+Updated progress on my board as of 22nd of June:
+
+![A card with sub tasks](./markdown-images/trello-3-22June.png)
+
+There were instances where I needed to extend the due dates because of the unforeseen complexities or personal reasons. In such cases, I made sure to review the tasks and adjust the timelines reasonably. Additionally, I encountered situations where I realized some subtasks were overlooked during the initial planning phase and prompted me to add them later. Below is the updated progress of my board as of 25th of June:
+
+![A card with sub tasks](./markdown-images/trello-4-25June.png)
 
 ### R3: List and explain the third-party services, packages and dependencies used in this app.
 
