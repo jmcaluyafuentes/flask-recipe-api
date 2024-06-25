@@ -13,36 +13,13 @@ from datetime import date, timedelta
 from typing import Optional
 from flask import request
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Boolean, Text
+from sqlalchemy import String, Text
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from marshmallow.exceptions import ValidationError
-from init import db, ma, app, bcrypt
+from init import db, app, bcrypt
 from models.user import User, UserSchema
 from models.category import Category, CategorySchema
-
-class Recipe(db.Model):
-    """
-    Recipe model representing the recipes table in the database.
-
-    Attributes:
-        id (int): The primary key for the recipe.
-        title (str): The title of the recipe.
-        description (str): The description for the recipe (optional).
-        is_public (bool): A flag indicating if the recipe is public or private (default is True for public).
-        preparation_time (int): The time required to prepare the recipe in minutes (optional).
-        date_created (date): The timestamp when the recipe was created.
-    """
-    __tablename__ = 'recipes'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    # author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    title: Mapped[str] = mapped_column(String(200))
-    description: Mapped[Optional[str]] = mapped_column(Text())
-    is_public: Mapped[bool] = mapped_column(Boolean, server_default="true")
-    # cuisine_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
-    preparation_time: Mapped[Optional[int]]
-    date_created: Mapped[date]
+from models.recipe import Recipe, RecipeSchema
 
 class Ingredient(db.Model):
     """
@@ -181,16 +158,6 @@ def db_create():
 
 # Marshmallow schema (NOT a db schema)
 # Used by Marshmallow to serialize and/or validate our SQLAlchemy models
-
-class RecipeSchema(ma.Schema):
-    """
-    Marshmallow schema for serializing and deserializing Recipe objects.
-    """
-    class Meta:
-        """
-        Inner class that specifies the fields to include in the schema.
-        """
-        fields = ('id', 'title', 'description', 'is_public')
 
 def admin_only(fn):
     """

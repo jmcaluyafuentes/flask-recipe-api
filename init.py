@@ -1,5 +1,5 @@
 """
-This script initializes a Flask application with various extensions and configuration settings.
+This module initializes a Flask application with various extensions and configuration settings.
 """
 
 # Import statements
