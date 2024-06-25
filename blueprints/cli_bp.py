@@ -1,11 +1,11 @@
 """
-
+This module is a blueprint for cli commands.
 """
 
 # Import statements
 from datetime import date
 from flask import Blueprint
-from init import db, app, bcrypt
+from init import db, bcrypt
 from models.user import User
 from models.category import Category
 from models.recipe import Recipe
@@ -13,7 +13,9 @@ from models.ingredient import Ingredient
 from models.instruction import Instruction
 # from models.saved_recipe import SavedRecipe
 
-@app.cli.command('db_create')
+db_commands = Blueprint('db', __name__)
+
+@db_commands.cli.command('create')
 def db_create():
     """
     Custom Flask CLI command to drop and recreate database tables and populate initial data.

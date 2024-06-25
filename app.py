@@ -20,6 +20,9 @@ from models.recipe import Recipe, RecipeSchema
 # from models.ingredient import Ingredient
 # from models.instruction import Instruction
 # from models.saved_recipe import SavedRecipe
+from blueprints.cli_bp import db_commands
+
+app.register_blueprint(db_commands)
 
 def admin_only(fn):
     """
