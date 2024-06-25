@@ -11,7 +11,7 @@ Student: John Fuentes
 # Import statements
 from datetime import timedelta
 from flask import request
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token
 from marshmallow.exceptions import ValidationError
 from init import db, app, bcrypt
 from models.user import User, UserSchema
@@ -21,48 +21,12 @@ from models.recipe import Recipe, RecipeSchema
 # from models.instruction import Instruction
 # from models.saved_recipe import SavedRecipe
 from blueprints.cli_bp import db_commands
+from blueprints.users_bp import users_bp
 
 app.register_blueprint(db_commands)
+app.register_blueprint(users_bp)
 
-def admin_only(fn):
-    """
-    Decorator to restrict access to admin users only.
-
-    Returns:
-        function: The inner function that performs the admin check and
-                either executes the decorated function or returns an
-                error message.
-    """
-    @jwt_required()
-    def inner():
-        # Ensure the user is an admin
-        user_id = get_jwt_identity()
-        # Query: Fetch a user based on JWT token subject
-        stmt = db.select(User).where(User.id == user_id, User.is_admin)
-        # Execute query (scalar)
-        user = db.session.scalar(stmt)
-        # if (user) return users else return error
-        if (user):
-            return fn()
-        else:
-            return {'error': 'You must be an admin to access this resource'}, 403    
-
-    return inner
-
-# Routes to get all records
-@app.route("/users")
-@admin_only
-def all_users():
-    """
-    Route to fetch all users from the database.
-
-    :return: A JSON representation of all user records.
-    :rtype: list of dict
-    """
-    stmt = db.select(User)
-    users = db.session.scalars(stmt).all()
-    return UserSchema(many=True).dump(users)
-
+# Route to get all records
 @app.route("/categories")
 def all_categories():
     """
@@ -87,23 +51,7 @@ def all_recipes():
     recipes = db.session.scalars(stmt).all()
     return RecipeSchema(many=True).dump(recipes)
 
-# Routes to get a record based on id
-@app.route("/users/<int:id>")
-def one_user(id):
-    """
-    Retrieve a user record by its id.
-
-    :param id: The ID of the user to retrieve.
-    :type id: int
-    :return: A JSON representation of the user record.
-    :rtype: dict
-    """
-    # Fetch the user with the specified ID, or return a 404 error if not found
-    user = db.get_or_404(User, id)
-
-    # Serialize the user record to JSON format
-    return UserSchema().dump(user)
-
+# Route to get a record based on id
 @app.route("/categories/<int:id>")
 def one_category(id):
     """
