@@ -7,7 +7,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, Text
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from marshmallow.exceptions import ValidationError
 
 # Create a base class for all SQLAlchemy models
@@ -273,9 +273,19 @@ def all_users():
     :return: A JSON representation of all user records.
     :rtype: list of dict
     """
-    stmt = db.select(User)
-    users = db.session.scalars(stmt).all()
-    return UserSchema(many=True).dump(users)
+    # Ensure the user is an admin
+    user_id = get_jwt_identity()
+    # Query: Fetch a user based on JWT token subject
+    stmt = db.select(User).where(User.id == user_id, User.is_admin)
+    # Execute query (scalar)
+    user = db.session.scalar(stmt)
+    # if (user) return users else return error
+    if (user):
+        stmt = db.select(User)
+        users = db.session.scalars(stmt).all()
+        return UserSchema(many=True).dump(users)
+    else:
+        return {'error': 'You must be an admin to access this resource'}, 403
 
 @app.route("/categories")
 def all_categories():
@@ -352,6 +362,18 @@ def one_recipe(id):
 
 @app.route('/users/login', methods=['POST'])
 def login():
+    """
+    Authenticate a user and generate a JSON Web Token (JWT).
+
+    This endpoint allows a user to log in by providing their email and password. 
+    The provided credentials are validated against the stored data in the database. 
+    If the credentials are valid, a JWT is generated and returned to the user. 
+    If the credentials are invalid, an error message is returned.
+
+    Returns:
+        dict: A dictionary containing the JWT if authentication is successful.
+        tuple: A dictionary containing an error message and an HTTP status code if authentication fails.
+    """
     # Get the email and password from the request
     params = UserSchema(only=['email', 'password']).load(request.json, unknown="exclude")
 
