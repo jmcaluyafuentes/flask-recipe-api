@@ -7,10 +7,10 @@ from init import db
 from auth import admin_only
 from models.user import User, UserSchema
 
-users_bp = Blueprint('users', __name__)
+users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 # Route to get all records
-@users_bp.route("/users")
+@users_bp.route("/")
 @admin_only
 def all_users():
     """
@@ -24,7 +24,7 @@ def all_users():
     return UserSchema(many=True).dump(users)
 
 # Route to get a record based on id
-@users_bp.route("/users/<int:user_id>")
+@users_bp.route("/<int:user_id>")
 def one_user(user_id):
     """
     Retrieve a user record by its id.

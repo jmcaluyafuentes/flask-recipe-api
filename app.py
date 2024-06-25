@@ -181,3 +181,4 @@ def invalid_request(err):
     """
     return {"error": vars(err)['messages']}
 
+print(app.url_map)
