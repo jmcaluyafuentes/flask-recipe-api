@@ -24,17 +24,13 @@ class Recipe(db.Model):
     __tablename__ = 'recipes'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-
-    # author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     title: Mapped[str] = mapped_column(String(200))
     description: Mapped[Optional[str]] = mapped_column(Text())
     is_public: Mapped[bool] = mapped_column(Boolean, server_default="true")
-    # cuisine_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     preparation_time: Mapped[Optional[int]]
     date_created: Mapped[date]
-
-# Marshmallow schema (NOT a db schema)
-# Used by Marshmallow to serialize and/or validate our SQLAlchemy models
+    # author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    # cuisine_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
 
 class RecipeSchema(ma.Schema):
     """
@@ -45,4 +41,3 @@ class RecipeSchema(ma.Schema):
         Inner class that specifies the fields to include in the schema.
         """
         fields = ('id', 'title', 'description', 'is_public')
-

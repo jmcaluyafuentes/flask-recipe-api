@@ -8,7 +8,6 @@ from models.category import Category, CategorySchema
 
 categories_bp = Blueprint('categories', __name__, url_prefix='/categories')
 
-# Route to get all records
 @categories_bp.route("/")
 def all_categories():
     """
@@ -21,7 +20,6 @@ def all_categories():
     categories = db.session.scalars(stmt).all()
     return CategorySchema(many=True).dump(categories)
 
-# Route to get a record based on id
 @categories_bp.route("/<int:cat_id>")
 def one_category(cat_id):
     """

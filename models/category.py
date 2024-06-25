@@ -18,11 +18,7 @@ class Category(db.Model):
     __tablename__ = 'categories'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-
     name: Mapped[str] = mapped_column(String(100))
-
-# Marshmallow schema (NOT a db schema)
-# Used by Marshmallow to serialize and/or validate our SQLAlchemy models
 
 class CategorySchema(ma.Schema):
     """

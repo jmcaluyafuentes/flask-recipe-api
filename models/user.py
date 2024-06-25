@@ -22,14 +22,10 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-
     email: Mapped[str] = mapped_column(String(200), unique=True)
     password: Mapped[str] = mapped_column(String(200))
     name: Mapped[Optional[str]] = mapped_column(String(100))
     is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
-
-# Marshmallow schema (NOT a db schema)
-# Used by Marshmallow to serialize and/or validate our SQLAlchemy models
 
 class UserSchema(ma.Schema):
     """

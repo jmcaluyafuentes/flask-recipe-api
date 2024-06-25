@@ -18,9 +18,7 @@ class Instruction(db.Model):
     """
     __tablename__ = 'instructions'
 
-    # id = db.Column(db.Integer, primary_key=True)
     id: Mapped[int] = mapped_column(primary_key=True)
-
-    # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
     description: Mapped[str] = mapped_column(Text())
     order: Mapped[int]
+    # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)

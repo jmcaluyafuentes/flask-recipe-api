@@ -20,7 +20,6 @@ class Ingredient(db.Model):
     __tablename__ = 'ingredients'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-
-    # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
     name: Mapped[str] = mapped_column(String(200))
     quantity: Mapped[Optional[str]] = mapped_column(String(50))
+    # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)

@@ -8,7 +8,6 @@ from models.recipe import Recipe, RecipeSchema
 
 recipes_bp = Blueprint('recipes', __name__, url_prefix='/recipes')
 
-# Route to get all records
 @recipes_bp.route("/")
 def all_recipes():
     """
@@ -21,7 +20,6 @@ def all_recipes():
     recipes = db.session.scalars(stmt).all()
     return RecipeSchema(many=True).dump(recipes)
 
-# Route to get a record based on id
 @recipes_bp.route("/<int:recipe_id>")
 def one_recipe(recipe_id):
     """
