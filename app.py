@@ -39,8 +39,7 @@ def not_found(_):
 
     This function is called when a 404 error is raised.
 
-    :param err: The error that triggered this handler.
-    :type err: Exception
+    :param _: Placeholder parameter (unused).
     :return: A JSON response with an error message and a 404 status code.
     :return_type: tuple(dict, int)
     """
@@ -53,8 +52,7 @@ def method_not_allowed(_):
 
     This function is called when a 405 error is raised.
 
-    :param err: The error that triggered this handler.
-    :type err: Exception
+    :param _: Placeholder parameter (unused).
     :return: A JSON response with an error message and a 405 status code.
     :return_type: tuple(dict, int)
     """
@@ -71,7 +69,7 @@ def missing_key(err):
     :return: A JSON response with an error message indicating the missing field.
     :return_type: dict
     """
-    return {"error": f"Missing field: {str(err)}"}
+    return {"error": f"Missing field: {str(err)}"}, 400
 
 @app.errorhandler(ValidationError)
 def invalid_request(err):
@@ -84,7 +82,7 @@ def invalid_request(err):
     :return: A JSON response with the validation error messages.
     :return_type: dict
     """
-    return {"error": vars(err)['messages']}
+    return {"error": vars(err)['messages']}, 400
 
 # Print all routes with endpoints that are registered in the app
 print(app.url_map)
