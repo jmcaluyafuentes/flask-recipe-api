@@ -24,7 +24,7 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(200), unique=True)
     password: Mapped[str] = mapped_column(String(200))
-    name: Mapped[Optional[str]] = mapped_column(String(100))
+    name: Mapped[str] = mapped_column(String(100))
     is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
 
 class UserSchema(ma.Schema):

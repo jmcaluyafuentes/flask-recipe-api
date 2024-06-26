@@ -40,4 +40,4 @@ class RecipeSchema(ma.Schema):
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'title', 'description', 'is_public')
+        fields = ('id', 'title', 'description', 'is_public', 'preparation_time', 'date_created')

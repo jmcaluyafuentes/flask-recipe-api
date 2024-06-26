@@ -2,7 +2,8 @@
 This module is a blueprint for routes to manage recipe records.
 """
 
-from flask import Blueprint
+from datetime import date
+from flask import Blueprint, request
 from init import db
 from models.recipe import Recipe, RecipeSchema
 
@@ -34,4 +35,35 @@ def one_recipe(recipe_id):
     recipe = db.get_or_404(Recipe, recipe_id)
 
     # Serialize the recipe record to JSON format
+    return RecipeSchema().dump(recipe)
+
+@recipes_bp.route("/", methods=["POST"])
+def create_recipe():
+    """
+    This function handles POST requests to create a new recipe. It expects the request 
+    body to contain the recipe's title, description, is_public flag, and preparation time. 
+    The description is optional and defaults to an empty string if not provided. 
+    The is_public flag defaults to True, and the preparation time is optional.
+
+    Returns:
+        tuple: A tuple containing the serialized recipe data and an HTTP status code.
+            - dict: The serialized recipe data.
+            - int: HTTP status code 201 indicating that the recipe was successfully created.
+
+    Raises:
+        ValidationError: If the input data does not conform to the expected schema.
+    """
+    
+    recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time']).load(request.json, unknown='exclude')
+
+    recipe = Recipe (
+        title=recipe_info['title'],
+        description=recipe_info.get('description', ''),
+        is_public=recipe_info.get('is_public', True),
+        preparation_time=recipe_info.get('preparation_time', None),
+        date_created=date.today()
+    )
+
+    db.session.add(recipe)
+    db.session.commit()
     return RecipeSchema().dump(recipe)

@@ -47,6 +47,7 @@ def login():
 def all_users():
     """
     Route to fetch all users from the database.
+    It is restricted to admin users only.
 
     :return: A JSON representation of all user records.
     :return_type: list of dict
@@ -73,12 +74,25 @@ def one_user(user_id):
 
 @users_bp.route("/", methods=["POST"])
 def create_user():
+    """
+    This function handles POST requests to create a new user. It expects the request 
+    body to contain the user's email, password, name, and an optional is_admin flag.
+    The password is hashed before storing it in the database for security reasons.
+
+    Returns:
+        tuple: A tuple containing the serialized user data and an HTTP status code.
+            - dict: The serialized user data.
+            - int: HTTP status code 201 indicating that the user was successfully created.
+
+    Raises:
+        ValidationError: If the input data does not conform to the expected schema.
+    """
     user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
 
     user = User(
         email=user_info['email'],
         password=bcrypt.generate_password_hash(user_info['password']).decode('utf-8'),
-        name=user_info.get('name', ''),
+        name=user_info['name'],
         is_admin=user_info.get('is_admin', False)
     )
 
