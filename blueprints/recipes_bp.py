@@ -53,7 +53,8 @@ def create_recipe():
             - int: HTTP status code 201 indicating that the recipe was successfully created.
 
     Raises:
-        KeyError: If the input data does not conform to the expected schema.
+        ValidationError: If the input data does not conform to the expected schema.
+        KeyError: If there is a missing field.
     """
 
     recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time']).load(request.json, unknown='exclude')
@@ -95,7 +96,7 @@ def update_recipe(recipe_id):
             - int: HTTP status code 200 indicating that the recipe was successfully updated.
 
     Raises:
-        KeyError: If the input data does not conform to the expected schema.
+        ValidationError: If the input data does not conform to the expected schema.
         NotFound: If the recipe with the given ID does not exist.
     """
     recipe = db.get_or_404(Recipe, recipe_id)

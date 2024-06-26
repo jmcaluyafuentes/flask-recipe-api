@@ -85,7 +85,8 @@ def create_user():
             - int: HTTP status code 201 indicating that the user was successfully created.
 
     Raises:
-        KeyError: If the input data does not conform to the expected schema.
+        ValidationError: If the input data does not conform to the expected schema.
+        KeyError: If there is a missing field.
     """
     user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
 
@@ -100,3 +101,39 @@ def create_user():
     db.session.commit()
 
     return UserSchema().dump(user), 201
+
+@users_bp.route("/<user_id>", methods=["PUT", "PATCH"])
+def update_user(user_id):
+    """
+    Endpoint to update an existing user.
+
+    This function handles PUT and PATCH requests to update an existing user by their ID.
+    It expects the request body to contain one or more fields of the user that need to be updated,
+    including email, password, name, and is_admin flag. Any fields not provided in the request will remain unchanged.
+
+    Path Parameters:
+        user_id (int): The ID of the user to be updated.
+
+    Request Body (JSON):
+        email (str, optional): The new email of the user.
+        password (str, optional): The new password of the user.
+        name (str, optional): The new name of the user.
+        is_admin (bool, optional): The new admin status of the user.
+
+    Returns:
+        dict: The serialized updated user data.
+        int: HTTP status code 200 indicating that the user was successfully updated.
+
+    Raises:
+        ValidationError: If the input data does not conform to the expected schema.
+        NotFound: If the user with the given ID does not exist.
+    """
+    user = db.get_or_404(User, user_id)
+    user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
+
+    user.email = user_info.get('email', user.email)
+    user.password = user_info.get('password', user.password)
+    user.name = user_info.get('name', user.name)
+    user.admin = user_info.get('is_admin', user.is_admin)
+    db.session.commit()
+    return UserSchema().dump(user)
