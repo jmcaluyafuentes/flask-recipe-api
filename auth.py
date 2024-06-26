@@ -29,6 +29,6 @@ def admin_only(fn):
         if (user):
             return fn()
         else:
-            return {'error': 'You must be an admin to access this resource'}, 403    
+            return {'error': 'You must be an admin to access this resource'}, 403
 
     return inner

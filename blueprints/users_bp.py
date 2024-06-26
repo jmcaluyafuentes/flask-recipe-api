@@ -70,3 +70,19 @@ def one_user(user_id):
 
     # Serialize the user record to JSON format
     return UserSchema().dump(user)
+
+@users_bp.route("/", methods=["POST"])
+def create_user():
+    user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
+
+    user = User(
+        email=user_info['email'],
+        password=bcrypt.generate_password_hash(user_info['password']).decode('utf-8'),
+        name=user_info.get('name', ''),
+        is_admin=user_info.get('is_admin', False)
+    )
+
+    db.session.add(user)
+    db.session.commit()
+
+    return UserSchema().dump(user), 201
