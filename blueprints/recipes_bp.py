@@ -3,6 +3,7 @@ This module is a blueprint for routes to manage recipe records.
 """
 
 from datetime import date
+import random
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required
 from init import db
@@ -149,3 +150,27 @@ def delete_recipe(recipe_id):
 
     # Return an empty dictionary to signify successful deletion with 200 status code.
     return {}
+
+@recipes_bp.route("/random", methods=["GET"])
+def random_recipe():
+    """
+    Retrieve a random recipe from the database.
+
+    Returns:
+        dict: A JSON representation of a random recipe record.
+    """
+    # Fetch all recipe IDs from the database
+    all_recipe_ids = [recipe.id for recipe in Recipe.query.all()]
+
+    if not all_recipe_ids:
+        # Handle case where there are no recipes in the database
+        return {"message": "No recipes found"}, 404
+
+    # Choose a random recipe ID
+    random_recipe_id = random.choice(all_recipe_ids)
+
+    # Fetch the recipe with the random ID
+    recipe = Recipe.query.get(random_recipe_id)
+
+    # Serialize the recipe record to JSON format
+    return RecipeSchema().dump(recipe)
