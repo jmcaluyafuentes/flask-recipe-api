@@ -1,5 +1,5 @@
 """
-This module is a blueprint for cli commands.
+This module defines Flask CLI commands for database management.
 """
 
 # Import statements
@@ -13,6 +13,7 @@ from models.ingredient import Ingredient
 from models.instruction import Instruction
 # from models.saved_recipe import SavedRecipe
 
+# Define a Blueprint for CLI commands
 db_commands = Blueprint('db', __name__)
 
 @db_commands.cli.command('create')
@@ -35,8 +36,6 @@ def db_create():
 
     # Define initial data lists for users, categories, recipes, ingredients, and instructions
     users = [
-        # username & email are unique for each user
-        # use bcrypt for slow hashing of password
         User(
             email='admin@example.com',
             password=bcrypt.generate_password_hash('hashed_password1').decode('utf-8'),
@@ -46,7 +45,7 @@ def db_create():
         User(
             email='user@example.com',
             password=bcrypt.generate_password_hash('hashed_password2').decode('utf-8'),
-            name='John1'
+            name='John'
         )
     ]
 
@@ -56,14 +55,11 @@ def db_create():
     ]
 
     recipes = [
-        # description & preparation_time are optional
-        # is_public default value is True
         Recipe(title='Spaghetti Carbonara', description='A classic Italian pasta dish.', date_created=date.today(), preparation_time=30),
         Recipe(title='Tacos', date_created=date.today(), is_public=False)
     ]
 
     ingredients = [
-        # quantity is optional
         Ingredient(name='Spaghetti', quantity='200g'),
         Ingredient(name='Eggs', quantity='4'),
         Ingredient(name='Bacon', quantity='100g'),

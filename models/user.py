@@ -3,7 +3,6 @@ This module defines SQLAlchemy models and Marshmallow schemas for handling User 
 """
 
 # Import statements
-from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Boolean
 from init import db, ma
@@ -21,15 +20,22 @@ class User(db.Model):
     """
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(200), unique=True)
-    password: Mapped[str] = mapped_column(String(200))
-    name: Mapped[str] = mapped_column(String(100))
-    is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
+    id: Mapped[int] = mapped_column(primary_key=True) # Primary key
+    email: Mapped[str] = mapped_column(String(200), unique=True) # Email of the user, must be unique
+    password: Mapped[str] = mapped_column(String(200)) # Password that will be hashed before storing in database
+    name: Mapped[str] = mapped_column(String(100)) # Name of the user, doesn't need to be unique
+    is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false") # Is admin flag, defaults to False
 
 class UserSchema(ma.Schema):
     """
     Marshmallow schema for serializing and deserializing User objects.
+    
+    Fields:
+        id (int): The unique identifier for the user.
+        email (str): The email address of the user.
+        name (str): The name of the user.
+        password (str): The hashed password of the user.
+        is_admin (bool): Indicates whether the user has admin privileges.
     """
     class Meta:
         """

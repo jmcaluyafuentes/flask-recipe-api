@@ -84,5 +84,21 @@ def invalid_request(err):
     """
     return {"error": vars(err)['messages']}, 400
 
+@app.errorhandler(ValueError)
+def invalid_salt(err):
+    """
+    Handle ValueError exceptions related to invalid salt.
+
+    This function is called when a ValueError is raised, specifically for invalid salt errors.
+
+    :param err: The ValueError exception that was raised.
+    :type err: ValueError
+    :return: A JSON response with an error message indicating the invalid salt error.
+    :return_type: tuple(dict, int)
+    """
+    if 'Invalid salt' in str(err):
+        return {"error": "Invalid salt"}, 400
+    return {"error": str(err)}, 400
+
 # Print all routes with endpoints that are registered in the app
 print(app.url_map)

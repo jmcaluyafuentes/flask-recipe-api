@@ -10,6 +10,7 @@ from init import db, bcrypt
 from auth import admin_only
 from models.user import User, UserSchema
 
+# Define the Blueprint for user routes
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 @users_bp.route('/login', methods=['POST'])
@@ -30,16 +31,18 @@ def login():
     # Get the email and password from the request
     params = UserSchema(only=['email', 'password']).load(request.json, unknown="exclude")
 
-    # Compare email and password against the database
+    # Query the database for a user with the provided email
     stmt = db.select(User).where(User.email == params['email'])
     user = db.session.scalar(stmt)
+
+    # Check if the user exists and if the password is correct
     if user and bcrypt.check_password_hash(user.password, params['password']):
-        # Generate JWT
+        # Generate a JWT with a 3-hour expiration time
         token = create_access_token(identity=user.id, expires_delta=timedelta(hours=3))
         # Return the JWT
         return {'token': token}
     else:
-        # Error handling (user not found, wrong username or password)
+        # Return an error message if authentication fails
         return {'error': 'Invalid email or password'}, 401
 
 @users_bp.route("/")
@@ -49,22 +52,26 @@ def all_users():
     Route to fetch all users from the database.
     It is restricted to admin users only.
 
-    :return: A JSON representation of all user records.
-    :return_type: list of dict
+    Returns:
+        list of dict: A JSON representation of all user records.
     """
+    # Query the database for all user records
     stmt = db.select(User)
+    # Execute the query and fetch all recipes
     users = db.session.scalars(stmt).all()
+    # Serialize the user records to JSON format
     return UserSchema(many=True).dump(users)
 
 @users_bp.route("/<int:user_id>")
 def one_user(user_id):
     """
-    Retrieve a user record by its id.
+    Retrieve a user record by its ID.
 
-    :param id: The ID of the user to retrieve.
-    :type id: int
-    :return: A JSON representation of the user record.
-    :return_type: dict
+    Args:
+        user_id (int): The ID of the user to retrieve.
+
+    Returns:
+        dict: A JSON representation of the user record.
     """
     # Fetch the user with the specified ID, or return a 404 error if not found
     user = db.get_or_404(User, user_id)
@@ -75,7 +82,7 @@ def one_user(user_id):
 @users_bp.route("/", methods=["POST"])
 def create_user():
     """
-    This function handles POST requests to create a new user. It expects the request 
+    This endpoint handles POST requests to create a new user. It expects the request 
     body to contain the user's email, password, name, and an optional is_admin flag.
     The password is hashed before storing it in the database for security reasons.
 
@@ -88,8 +95,10 @@ def create_user():
         ValidationError: If the input data does not conform to the expected schema.
         KeyError: If there is a missing field.
     """
+    # Load user data from the request
     user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
 
+    # Create a new user instance
     user = User(
         email=user_info['email'],
         password=bcrypt.generate_password_hash(user_info['password']).decode('utf-8'),
@@ -97,9 +106,11 @@ def create_user():
         is_admin=user_info.get('is_admin', False)
     )
 
+    # Add the new user to the database and commit the transaction
     db.session.add(user)
     db.session.commit()
 
+    # Return the serialized user data and HTTP status code 201
     return UserSchema().dump(user), 201
 
 @users_bp.route("/<user_id>", methods=["PUT", "PATCH"])
@@ -111,14 +122,8 @@ def update_user(user_id):
     It expects the request body to contain one or more fields of the user that need to be updated,
     including email, password, name, and is_admin flag. Any fields not provided in the request will remain unchanged.
 
-    Path Parameters:
+    Args:
         user_id (int): The ID of the user to be updated.
-
-    Request Body (JSON):
-        email (str, optional): The new email of the user.
-        password (str, optional): The new password of the user.
-        name (str, optional): The new name of the user.
-        is_admin (bool, optional): The new admin status of the user.
 
     Returns:
         dict: The serialized updated user data.
@@ -128,12 +133,18 @@ def update_user(user_id):
         ValidationError: If the input data does not conform to the expected schema.
         NotFound: If the user with the given ID does not exist.
     """
+    # Fetch the user with the specified ID, or return a 404 error if not found
     user = db.get_or_404(User, user_id)
+    # Load the updated user data from the request
     user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
-
+    
+    # Update the user attributes with the new data
     user.email = user_info.get('email', user.email)
-    user.password = user_info.get('password', user.password)
+    user.password = user_info.get(bcrypt.generate_password_hash('password').decode('utf-8'), user.password)
     user.name = user_info.get('name', user.name)
     user.admin = user_info.get('is_admin', user.is_admin)
+
+    # Commit the updated user to the database
     db.session.commit()
+    # Return the serialized updated user data
     return UserSchema().dump(user)
