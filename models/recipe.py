@@ -24,7 +24,7 @@ class Recipe(db.Model):
     __tablename__ = 'recipes'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(200))
+    title: Mapped[str] = mapped_column(String(200), unique=True)
     description: Mapped[Optional[str]] = mapped_column(Text())
     is_public: Mapped[bool] = mapped_column(Boolean, server_default="true")
     preparation_time: Mapped[Optional[int]]

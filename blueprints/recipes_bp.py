@@ -51,9 +51,9 @@ def create_recipe():
             - int: HTTP status code 201 indicating that the recipe was successfully created.
 
     Raises:
-        ValidationError: If the input data does not conform to the expected schema.
+        KeyError: If the input data does not conform to the expected schema.
     """
-    
+
     recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time']).load(request.json, unknown='exclude')
 
     recipe = Recipe (

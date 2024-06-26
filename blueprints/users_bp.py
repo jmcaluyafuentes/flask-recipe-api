@@ -85,7 +85,7 @@ def create_user():
             - int: HTTP status code 201 indicating that the user was successfully created.
 
     Raises:
-        ValidationError: If the input data does not conform to the expected schema.
+        KeyError: If the input data does not conform to the expected schema.
     """
     user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
 

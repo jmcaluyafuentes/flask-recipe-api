@@ -38,14 +38,15 @@ def db_create():
         # username & email are unique for each user
         # use bcrypt for slow hashing of password
         User(
-            email='admin@example.com', 
-            password=bcrypt.generate_password_hash('hashed_password1').decode('utf-8'), 
+            email='admin@example.com',
+            password=bcrypt.generate_password_hash('hashed_password1').decode('utf-8'),
+            name='admin',
             is_admin=True
         ),
         User(
-            email='user@example.com', 
-            password=bcrypt.generate_password_hash('hashed_password2').decode('utf-8'), 
-            name='John'
+            email='user@example.com',
+            password=bcrypt.generate_password_hash('hashed_password2').decode('utf-8'),
+            name='John1'
         )
     ]
 
