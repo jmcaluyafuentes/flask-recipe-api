@@ -21,6 +21,7 @@ class Base(DeclarativeBase):
 # Initialize Flask application by creating an instance of Flask class
 app = Flask(__name__)
 
+# Set JWT_SECRET_KEY from environment variable JWT_KEY
 app.config['JWT_SECRET_KEY'] = environ.get("JWT_KEY")
 
 # Set the database URI from the environment variable

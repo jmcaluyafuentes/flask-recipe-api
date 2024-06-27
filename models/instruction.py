@@ -13,12 +13,12 @@ class Instruction(db.Model):
 
     Attributes:
         id (int): The primary key for the instruction.
-        description (str): The description or step of the instruction.
-        order (int): The order or sequence number of the instruction.
+        step_number (int): The sequential order of instructions in cooking process.
+        task (str): A specific action that needs to be performed in cooking process.
     """
     __tablename__ = 'instructions'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    description: Mapped[str] = mapped_column(Text())
-    order: Mapped[int]
+    step_number: Mapped[int]
+    task: Mapped[str] = mapped_column(Text())
     # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)

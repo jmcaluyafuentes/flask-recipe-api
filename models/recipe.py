@@ -15,7 +15,7 @@ class Recipe(db.Model):
 
     Attributes:
         id (int): The primary key for the recipe.
-        title (str): The title of the recipe.
+        title (str): The unique title of the recipe.
         description (str): The description for the recipe (optional).
         is_public (bool): A flag indicating if the recipe is public or private (default is True for public).
         preparation_time (int): The time required to prepare the recipe in minutes (optional).
@@ -23,12 +23,12 @@ class Recipe(db.Model):
     """
     __tablename__ = 'recipes'
 
-    id: Mapped[int] = mapped_column(primary_key=True) # Primary key
-    title: Mapped[str] = mapped_column(String(200), unique=True) # Title of the recipe, must be unique
-    description: Mapped[Optional[str]] = mapped_column(Text()) # Description of the recipe, optional
-    is_public: Mapped[bool] = mapped_column(Boolean, server_default="true") # Public visibility flag, defaults to True
-    preparation_time: Mapped[Optional[int]] # Preparation time in minutes, optional
-    date_created: Mapped[date] # Date when the recipe was created
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(200), unique=True)
+    description: Mapped[Optional[str]] = mapped_column(Text())
+    is_public: Mapped[bool] = mapped_column(Boolean, server_default="true")
+    preparation_time: Mapped[Optional[int]]
+    date_created: Mapped[date]
     
     # Foreign key columns
     # author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

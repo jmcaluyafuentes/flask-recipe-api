@@ -17,13 +17,14 @@ def all_recipes():
     """
     Route to fetch all recipes from the database.
 
-    :return: A JSON representation of all recipe records.
-    :return_type: list of dict
+    Returns:
+        list of dict: A JSON representation of all user records.
     """
     # Create a select statement to fetch all recipes
     stmt = db.select(Recipe)
     # Execute the query and fetch all recipes
     recipes = db.session.scalars(stmt).all()
+
     # Return the serialized recipes
     return RecipeSchema(many=True).dump(recipes)
 
@@ -32,14 +33,16 @@ def one_recipe(recipe_id):
     """
     Retrieve a recipe record by its ID.
 
-    :param id: The ID of the recipe to retrieve.
-    :type recipe_id: int
-    :return: A JSON representation of the recipe record.
-    :r_type: dict
+    Args:
+        recipe_id (int): The ID of the recipe to retrieve.
+
+    Returns:
+        dict: A JSON representation of the recipe record.
     """
     # Fetch the recipe with the specified ID, or return a 404 error if not found
     recipe = db.get_or_404(Recipe, recipe_id)
-    # Serialize the recipe record to JSON format
+
+    # Return the serialized recipe
     return RecipeSchema().dump(recipe)
 
 @recipes_bp.route("/", methods=["POST"])
@@ -50,12 +53,6 @@ def create_recipe():
     body to contain the recipe's title, description, is_public flag, and preparation time. 
     The description is optional and defaults to an empty string if not provided. 
     The is_public flag defaults to True, and the preparation time is optional.
-
-    Request Body (JSON):
-    title (str): The title of the recipe.
-    description (str, optional): The description of the recipe.
-    is_public (bool, optional): The visibility status of the recipe.
-    preparation_time (int, optional): The preparation time in minutes.
 
     Returns:
         tuple: A tuple containing the serialized recipe data and an HTTP status code.
@@ -81,25 +78,22 @@ def create_recipe():
     # Add the new recipe to the session and commit it to the database
     db.session.add(recipe)
     db.session.commit()
+
     # Return the serialized recipe data and a 201 Created status code
     return RecipeSchema().dump(recipe), 201
 
 @recipes_bp.route("/<int:recipe_id>", methods=["PUT", "PATCH"])
 def update_recipe(recipe_id):
     """
+    Endpoint to update an existing recipe.
+
     This function handles PUT and PATCH requests to update an existing recipe by its ID. 
     It expects the request body to contain one or more fields of the recipe that need to be updated, 
     including title, description, is_public flag, and preparation time. Any fields not provided 
     in the request will remain unchanged.
 
-    Path Parameters:
-        recipe_id (int): The ID of the recipe to be updated.
-
-    Request Body (JSON):
-        title (str, optional): The new title of the recipe.
-        description (str, optional): The new description of the recipe.
-        is_public (bool, optional): The new visibility status of the recipe.
-        preparation_time (int, optional): The new preparation time in minutes.
+    Args:
+        recipe_id (int): The ID of the user to be updated.
 
     Returns:
         tuple: A tuple containing the serialized updated recipe data and an HTTP status code.
@@ -120,9 +114,11 @@ def update_recipe(recipe_id):
     recipe.description = recipe_info.get('description', recipe.description)
     recipe.is_public = recipe_info.get('is_public', recipe.is_public)
     recipe.preparation_time = recipe_info.get('preparation_time', recipe.preparation_time)
-    # Commit the changes to the database
+    
+    # Commit the updated recipe to the database
     db.session.commit()
-    # Return the serialized updated recipe data and a 200 OK status code
+
+    # Return the serialized updated recipe data
     return RecipeSchema().dump(recipe)
 
 @recipes_bp.route("/<recipe_id>", methods=["DELETE"])
@@ -132,8 +128,8 @@ def delete_recipe(recipe_id):
     based on its unique identifier (ID). If the recipe with the specified ID exists, 
     it is deleted from the database. If not found, a 404 error is returned.
 
-    Path Parameters:
-        recipe_id (int): The ID of the recipe to be deleted.
+    Args:
+        recipe_id (int): The ID of the recipe to be updated.
 
     Returns:
         dict: An empty dictionary indicating successful deletion with 200 status code.
@@ -148,7 +144,7 @@ def delete_recipe(recipe_id):
     db.session.delete(recipe)
     db.session.commit()
 
-    # Return an empty dictionary to signify successful deletion with 200 status code.
+    # Return an empty dictionary to signify successful deletion.
     return {}
 
 @recipes_bp.route("/random", methods=["GET"])

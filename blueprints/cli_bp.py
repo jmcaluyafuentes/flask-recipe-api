@@ -38,13 +38,13 @@ def db_create():
     users = [
         User(
             email='admin@example.com',
-            password=bcrypt.generate_password_hash('hashed_password1').decode('utf-8'),
+            password=bcrypt.generate_password_hash('password_admin').decode('utf-8'),
             name='admin',
             is_admin=True
         ),
         User(
-            email='user@example.com',
-            password=bcrypt.generate_password_hash('hashed_password2').decode('utf-8'),
+            email='user1@example.com',
+            password=bcrypt.generate_password_hash('password_user1').decode('utf-8'),
             name='John'
         )
     ]
@@ -68,11 +68,11 @@ def db_create():
     ]
 
     instructions = [
-        Instruction(description='Boil the spaghetti.', order=1),
-        Instruction(description='Fry the bacon.', order=2),
-        Instruction(description='Mix eggs with cheese.', order=3),
-        Instruction(description='Cook the chicken.', order=1),
-        Instruction(description='Assemble the tacos.', order=2)
+        Instruction(step_number=1, task='Boil the spaghetti.'),
+        Instruction(step_number=2, task='Fry the bacon.'),
+        Instruction(step_number=3, task='Mix eggs with cheese.'),
+        Instruction(step_number=1, task='Cook the chicken.'),
+        Instruction(step_number=2, task='Assemble the tacos.')
     ]
 
     # Add initial data to the session

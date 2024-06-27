@@ -10,7 +10,7 @@ from init import db, bcrypt
 from auth import admin_only
 from models.user import User, UserSchema
 
-# Define the Blueprint for user routes
+# Define a blueprint for user-related routes
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 @users_bp.route('/login', methods=['POST'])
@@ -33,6 +33,8 @@ def login():
 
     # Query the database for a user with the provided email
     stmt = db.select(User).where(User.email == params['email'])
+
+    # Execute the query and fetch the scalar result (single row), if any.
     user = db.session.scalar(stmt)
 
     # Check if the user exists and if the password is correct
@@ -57,9 +59,10 @@ def all_users():
     """
     # Query the database for all user records
     stmt = db.select(User)
-    # Execute the query and fetch all recipes
+    # Execute the query and fetch all users
     users = db.session.scalars(stmt).all()
-    # Serialize the user records to JSON format
+
+    # Return the serialized users
     return UserSchema(many=True).dump(users)
 
 @users_bp.route("/<int:user_id>")
@@ -76,7 +79,7 @@ def one_user(user_id):
     # Fetch the user with the specified ID, or return a 404 error if not found
     user = db.get_or_404(User, user_id)
 
-    # Serialize the user record to JSON format
+    # Return the serialized user
     return UserSchema().dump(user)
 
 @users_bp.route("/", methods=["POST"])
@@ -95,7 +98,7 @@ def create_user():
         ValidationError: If the input data does not conform to the expected schema.
         KeyError: If there is a missing field.
     """
-    # Load user data from the request
+    # Load the request data and validate it against the UserSchema
     user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
 
     # Create a new user instance
@@ -106,11 +109,11 @@ def create_user():
         is_admin=user_info.get('is_admin', False)
     )
 
-    # Add the new user to the database and commit the transaction
+    # Add the new user to the session and commit it to the database
     db.session.add(user)
     db.session.commit()
 
-    # Return the serialized user data and HTTP status code 201
+    # Return the serialized recipe data and a 201 Created status code
     return UserSchema().dump(user), 201
 
 @users_bp.route("/<user_id>", methods=["PUT", "PATCH"])
@@ -126,8 +129,9 @@ def update_user(user_id):
         user_id (int): The ID of the user to be updated.
 
     Returns:
-        dict: The serialized updated user data.
-        int: HTTP status code 200 indicating that the user was successfully updated.
+        tuple: A tuple containing the serialized updated user data and an HTTP status code.
+            - dict: The serialized updated user data.
+            - int: HTTP status code 200 indicating that the user was successfully updated.
 
     Raises:
         ValidationError: If the input data does not conform to the expected schema.
@@ -135,10 +139,10 @@ def update_user(user_id):
     """
     # Fetch the user with the specified ID, or return a 404 error if not found
     user = db.get_or_404(User, user_id)
-    # Load the updated user data from the request
+    # Load the request data and validate it against the UserSchema
     user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
     
-    # Update the user attributes with the new data
+    # Update the recipe fields if new values are provided, otherwise keep the existing values
     user.email = user_info.get('email', user.email)
     user.password = user_info.get(bcrypt.generate_password_hash('password').decode('utf-8'), user.password)
     user.name = user_info.get('name', user.name)
@@ -146,5 +150,6 @@ def update_user(user_id):
 
     # Commit the updated user to the database
     db.session.commit()
+
     # Return the serialized updated user data
     return UserSchema().dump(user)

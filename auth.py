@@ -12,20 +12,25 @@ def admin_only(fn):
     """
     Decorator to restrict access to admin users only.
 
+    Args:
+        fn (function): The function to be decorated, which requires admin access.
+
     Returns:
-        function: The inner function that performs the admin check and
-                either executes the decorated function or returns an
-                error message.
+        function: The inner function that performs the admin check and either
+                executes the decorated function or returns an error message.
+    
+    Raises:
+        403 HTTP Error: If the current user is not an admin.
     """
-    @jwt_required()
+    @jwt_required() # Ensures a valid JWT is present before proceeding
     def inner():
-        # Ensure the user is an admin
+        # Get the user ID from the JWT payload
         user_id = get_jwt_identity()
-        # Query: Fetch a user based on JWT token subject
+        # Query the database to fetch the user and check if it is an admin
         stmt = db.select(User).where(User.id == user_id, User.is_admin)
         # Execute query (scalar)
         user = db.session.scalar(stmt)
-        # if (user) return users else return error
+        # Return the decorated function if user is admin, otherwise return an error response
         if (user):
             return fn()
         else:

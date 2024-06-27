@@ -13,7 +13,7 @@ class Category(db.Model):
 
     Attributes:
         id (int): The primary key for the category.
-        name (str): The name of the category.
+        name (str): The name of the category, particularly the cuisine.
     """
     __tablename__ = 'categories'
 

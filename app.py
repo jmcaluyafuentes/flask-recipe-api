@@ -25,36 +25,40 @@ app.register_blueprint(recipes_bp)
 @app.route('/')
 def index():
     """
-    Route for the index page.
+    Renders the index page of the Flask Recipe API.
+    This route serves as a basic test to check if the Flask application is operational.
 
     Returns:
-        str: A simple HTML string for the index page.
+        str: HTML content displaying a heading for the index page.
     """
     return '<h1>Flask Recipe API</h1>'
 
 @app.errorhandler(404)
 def not_found(_):
     """
-    Handle 404 Not Found errors.
-
     This function is called when a 404 error is raised.
 
-    :param _: Placeholder parameter (unused).
-    :return: A JSON response with an error message and a 404 status code.
-    :return_type: tuple(dict, int)
+    Args:
+        _: Placeholder parameter (unused).
+
+    Returns:
+        tuple: A JSON response with an error message and a 404 status code.
+            The tuple consists of a dictionary containing the error message
+            and an integer representing the HTTP status code.
     """
     return {'error': 'Not Found'}, 404
 
 @app.errorhandler(405)
 def method_not_allowed(_):
     """
-    Handle 405 Method Not Allowed errors.
-
     This function is called when a 405 error is raised.
 
-    :param _: Placeholder parameter (unused).
-    :return: A JSON response with an error message and a 405 status code.
-    :return_type: tuple(dict, int)
+    Args:
+        _: Placeholder parameter (unused).
+
+    Returns:
+        tuple: A tuple containing a dictionary with an error message and an integer 
+            representing the HTTP status code (405).
     """
     return {'error': 'Method Not Allowed'}, 405
 
@@ -64,10 +68,12 @@ def missing_key(err):
     This function handles KeyError exceptions by returning a JSON response
     with an error message indicating the missing field.
 
-    :param err: The KeyError exception that was raised.
-    :type err: KeyError
-    :return: A JSON response with an error message indicating the missing field.
-    :return_type: dict
+    Args:
+        err (KeyError): The KeyError exception that was raised.
+
+    Returns:
+        tuple: A tuple containing a dictionary with an error message indicating
+            the missing field and an integer representing the HTTP status code (400).
     """
     return {"error": f"Missing field: {str(err)}"}, 400
 
@@ -77,28 +83,14 @@ def invalid_request(err):
     This function handles ValidationError exceptions by returning a JSON response
     with an error message indicating the validation errors.
 
-    :param err: The ValidationError exception that was raised.
-    :type err: ValidationError
-    :return: A JSON response with the validation error messages.
-    :return_type: dict
+    Args:
+        err (ValidationError): The ValidationError exception that was raised.
+
+    Returns:
+        tuple: A tuple containing a dictionary with the validation error messages and an integer
+            representing the HTTP status code (400).
     """
     return {"error": vars(err)['messages']}, 400
-
-@app.errorhandler(ValueError)
-def invalid_salt(err):
-    """
-    Handle ValueError exceptions related to invalid salt.
-
-    This function is called when a ValueError is raised, specifically for invalid salt errors.
-
-    :param err: The ValueError exception that was raised.
-    :type err: ValueError
-    :return: A JSON response with an error message indicating the invalid salt error.
-    :return_type: tuple(dict, int)
-    """
-    if 'Invalid salt' in str(err):
-        return {"error": "Invalid salt"}, 400
-    return {"error": str(err)}, 400
 
 # Print all routes with endpoints that are registered in the app
 print(app.url_map)
