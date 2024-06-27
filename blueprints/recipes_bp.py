@@ -5,7 +5,7 @@ This module is a blueprint for routes to manage recipe records.
 from datetime import date
 import random
 from flask import Blueprint, request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from init import db
 from models.recipe import Recipe, RecipeSchema
 
@@ -72,7 +72,8 @@ def create_recipe():
         description=recipe_info.get('description', ''),
         is_public=recipe_info.get('is_public', True),
         preparation_time=recipe_info.get('preparation_time', None),
-        date_created=date.today()
+        date_created=date.today(),
+        user_id=get_jwt_identity()
     )
 
     # Add the new recipe to the session and commit it to the database
@@ -114,7 +115,7 @@ def update_recipe(recipe_id):
     recipe.description = recipe_info.get('description', recipe.description)
     recipe.is_public = recipe_info.get('is_public', recipe.is_public)
     recipe.preparation_time = recipe_info.get('preparation_time', recipe.preparation_time)
-    
+
     # Commit the updated recipe to the database
     db.session.commit()
 

@@ -82,7 +82,7 @@ def one_user(user_id):
     # Return the serialized user
     return UserSchema().dump(user)
 
-@users_bp.route("/", methods=["POST"])
+@users_bp.route("/register", methods=["POST"])
 def create_user():
     """
     This endpoint handles POST requests to create a new user. It expects the request 

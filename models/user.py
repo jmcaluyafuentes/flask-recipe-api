@@ -3,7 +3,8 @@ This module defines SQLAlchemy models and Marshmallow schemas for handling User 
 """
 
 # Import statements
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import List
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Boolean
 from init import db, ma
 
@@ -25,6 +26,8 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(String(200))
     name: Mapped[str] = mapped_column(String(100))
     is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
+
+    recipes: Mapped[List['Recipe']] = relationship(back_populates='user') # type: ignore
 
 class UserSchema(ma.Schema):
     """
