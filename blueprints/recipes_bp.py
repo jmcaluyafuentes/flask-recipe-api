@@ -8,6 +8,7 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from init import db
 from models.recipe import Recipe, RecipeSchema
+from auth import authorize_owner
 
 # Define a blueprint for recipe-related routes
 recipes_bp = Blueprint('recipes', __name__, url_prefix='/recipes')
@@ -84,6 +85,7 @@ def create_recipe():
     return RecipeSchema().dump(recipe), 201
 
 @recipes_bp.route("/<int:recipe_id>", methods=["PUT", "PATCH"])
+@jwt_required()
 def update_recipe(recipe_id):
     """
     Endpoint to update an existing recipe.
@@ -107,6 +109,8 @@ def update_recipe(recipe_id):
     """
     # Fetch the recipe with the specified ID, or return a 404 error if not found
     recipe = db.get_or_404(Recipe, recipe_id)
+    # Call the function that check if the JWT user is the owner of the given recipe
+    authorize_owner(recipe)
     # Load the request data and validate it against the RecipeSchema
     recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time']).load(request.json, unknown='exclude')
 

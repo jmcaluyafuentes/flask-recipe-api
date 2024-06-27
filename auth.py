@@ -3,6 +3,7 @@ This module defines a route decorator to ensure that only admin users can access
 """
 
 # Import statements
+from flask import abort, jsonify, make_response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from init import db
 from models.user import User
@@ -37,3 +38,22 @@ def admin_only(fn):
             return {'error': 'You must be an admin to access this resource'}, 403
 
     return inner
+
+# Ensure that the JWT user is the owner of the given recipe
+def authorize_owner(recipe):
+    """
+    Ensure that the JWT user is the owner of the given recipe.
+
+    This function checks if the user ID from the JWT payload matches the user ID of the recipe.
+    If they do not match, a 403 error is raised.
+
+    Args:
+        recipe (Recipe): The recipe object to check ownership against.
+
+    Raises:
+        Forbidden: If the JWT user is not the owner of the recipe.
+    """
+    # Get the user ID from the JWT payload
+    user_id = get_jwt_identity()
+    if user_id != recipe.user_id:
+        abort(make_response(jsonify(error = 'You must be the author of recipe to access this resource'), 403))

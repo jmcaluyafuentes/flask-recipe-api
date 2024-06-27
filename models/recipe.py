@@ -21,6 +21,7 @@ class Recipe(db.Model):
         is_public (bool): A flag indicating if the recipe is public or private (default is True for public).
         preparation_time (int): The time required to prepare the recipe in minutes (optional).
         date_created (date): The timestamp when the recipe was created.
+        user_id (int): The foreign key of users table.
     """
     __tablename__ = 'recipes'
 
