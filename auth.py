@@ -39,10 +39,10 @@ def admin_only(fn):
 
     return inner
 
-# Ensure that the JWT user is the owner of the given recipe
+# Ensure that the JWT user is the author of the given recipe
 def authorize_owner(recipe):
     """
-    Ensure that the JWT user is the owner of the given recipe.
+    Ensure that the JWT user is the author of the given recipe.
 
     This function checks if the user ID from the JWT payload matches the user ID of the recipe.
     If they do not match, a 403 error is raised.

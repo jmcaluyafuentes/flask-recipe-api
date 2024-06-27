@@ -109,8 +109,10 @@ def update_recipe(recipe_id):
     """
     # Fetch the recipe with the specified ID, or return a 404 error if not found
     recipe = db.get_or_404(Recipe, recipe_id)
-    # Call the function that check if the JWT user is the owner of the given recipe
+
+    # Call the function that check if the JWT user is the author of the given recipe
     authorize_owner(recipe)
+
     # Load the request data and validate it against the RecipeSchema
     recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time']).load(request.json, unknown='exclude')
 
@@ -127,6 +129,7 @@ def update_recipe(recipe_id):
     return RecipeSchema().dump(recipe)
 
 @recipes_bp.route("/<recipe_id>", methods=["DELETE"])
+@jwt_required()
 def delete_recipe(recipe_id):
     """
     This endpoint handles DELETE requests to remove a recipe from the database 
@@ -144,6 +147,9 @@ def delete_recipe(recipe_id):
     """
     # Fetch the recipe with the specified ID, or return a 404 error if not found
     recipe = db.get_or_404(Recipe, recipe_id)
+
+    # Call the function that check if the JWT user is the author of the given recipe
+    authorize_owner(recipe)
 
     # Delete the recipe from the database
     db.session.delete(recipe)
