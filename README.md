@@ -112,3 +112,32 @@ I also used Git for source control and regularly pushed my changes to a GitHub r
 - Path or route  
 - Any required body or header data  
 - Response
+
+### 1. /users/login
+
+a. Description: This endpoint handles user authentication by validating credentials (email and password) against stored data in the database. Upon successful authentication, it generates a JSON Web Token (JWT) which is returned to the client. If authentication fails, an error message is returned.
+
+b. HTTP request verbs: POST
+
+c. Arguments: None
+
+d. Required request body:
+
+1. email (string): The user's email address  
+2. password (string): The user's password
+
+e. Required request header: None
+
+f. Authentication: It requires the user ID, which is validated against the database. If a matching record is found, the password from the request is hashed and then it is compared with the stored hashed password for that user. Upon successful verification, a JWT token is generated. This token grants access to all routes accessible at the user level.
+
+g. Expected response if successful:
+
+1. Response data: JSON object containing a JWT under the key token
+2. Status code: 200 OK
+
+h. Expected response if failed:
+
+If authentication fails (invalid email or password):
+
+1. Response data: JSON object containing an error message describing the reason for failure.
+2. Status code: 401 Unauthorized
