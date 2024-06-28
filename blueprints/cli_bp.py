@@ -46,6 +46,11 @@ def db_create():
             email='user1@example.com',
             password=bcrypt.generate_password_hash('password_user1').decode('utf-8'),
             name='John'
+        ),
+        User(
+            email='user2@example.com',
+            password=bcrypt.generate_password_hash('password_user2').decode('utf-8'),
+            name='John Mark'
         )
     ]
 
@@ -55,6 +60,9 @@ def db_create():
         ),
         Category(
             cuisine_name='Mexican'
+        ),
+        Category(
+            cuisine_name='Filipino'
         )
     ]
 
@@ -80,6 +88,13 @@ def db_create():
             is_public=False,
             user=users[1],
             category=categories[1],
+        ),
+        Recipe(
+            title='Menudo',
+            description= 'A hearty stew made with diced pork or beef, potatoes, carrots, and bell peppers in a tomato-based sauce.',
+            date_created=date.today(),
+            user=users[2],
+            category=categories[2],
         )
     ]
 
@@ -116,6 +131,18 @@ def db_create():
             name='Chicken',
             quantity='200g',
             recipe=recipes[1]
+        ),
+
+        # Ingredients of the third recipe
+        Ingredient(
+            name='Pork',
+            quantity='1 kg',
+            recipe=recipes[2]
+        ),
+        Ingredient(
+            name='Potatoes',
+            quantity='2',
+            recipe=recipes[2]
         )
     ]
 
@@ -137,7 +164,7 @@ def db_create():
             recipe=recipes[0]
         ),
 
-        # Instructions of the first recipe
+        # Instructions of the second recipe
         Instruction(
             step_number=1,
             task='Cook the chicken.',
@@ -147,6 +174,18 @@ def db_create():
             step_number=2,
             task='Assemble the tacos.',
             recipe=recipes[1]
+        ),
+
+        # Instructions of the third recipe
+        Instruction(
+            step_number=1,
+            task='Sauté Aromatics.',
+            recipe=recipes[2]
+        ),
+        Instruction(
+            step_number=2,
+            task='Cook the Pork.',
+            recipe=recipes[2]
         )
     ]
 
