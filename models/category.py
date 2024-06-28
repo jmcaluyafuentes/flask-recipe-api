@@ -3,7 +3,8 @@ This module defines SQLAlchemy models and Marshmallow schemas for handling Categ
 """
 
 # Import statements
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import List
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String
 from init import db, ma
 
@@ -19,6 +20,8 @@ class Category(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     cuisine_name: Mapped[str] = mapped_column(String(100))
+
+    recipes: Mapped[List['Recipe']] = relationship(back_populates='category') # type: ignore
 
 class CategorySchema(ma.Schema):
     """

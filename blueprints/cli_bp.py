@@ -49,12 +49,6 @@ def db_create():
         )
     ]
 
-    # Add initial data to the session
-    db.session.add_all(users)
-
-    # Commit the session to persist changes to the database
-    db.session.commit()
-
     categories = [
         Category(
             cuisine_name='Italian'
@@ -64,19 +58,28 @@ def db_create():
         )
     ]
 
+    # Add initial data to the session
+    db.session.add_all(users)
+    db.session.add_all(categories)
+
+    # Commit the session to persist changes to the database
+    db.session.commit()
+
     recipes = [
         Recipe(
             title='Spaghetti Carbonara',
             description='A classic Italian pasta dish.',
             date_created=date.today(),
             preparation_time=30,
-            user=users[0]
+            user=users[0],
+            category=categories[0]
         ),
         Recipe(
             title='Tacos',
             date_created=date.today(),
             is_public=False,
-            user=users[1]
+            user=users[1],
+            category=categories[1]
         )
     ]
 
@@ -126,7 +129,6 @@ def db_create():
     ]
 
     # Add initial data to the session
-    db.session.add_all(categories)
     db.session.add_all(recipes)
     db.session.add_all(ingredients)
     db.session.add_all(instructions)

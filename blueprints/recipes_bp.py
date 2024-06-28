@@ -8,6 +8,7 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from init import db
 from models.recipe import Recipe, RecipeSchema
+from models.category import Category
 from auth import authorize_owner
 
 # Define a blueprint for recipe-related routes
@@ -65,7 +66,22 @@ def create_recipe():
         KeyError: If there is a missing field.
     """
     # Load the request data and validate it against the RecipeSchema
-    recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time']).load(request.json, unknown='exclude')
+    recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time', 'category']).load(request.json, unknown='exclude')
+    
+    # Extract category information from the request
+    category_data = recipe_info.get('category', {})
+    cuisine_name = category_data.get('cuisine_name') if isinstance(category_data, dict) else None
+
+    # Initialize category variable to None
+    category = None
+
+    # If cuisine_name is provided, find or create the corresponding category
+    if cuisine_name:
+        category = Category.query.filter_by(cuisine_name=cuisine_name).first()
+        if not category:
+            category = Category(cuisine_name=cuisine_name)
+            db.session.add(category)
+            db.session.commit()
 
     # Create a new Recipe instance
     recipe = Recipe (
@@ -74,7 +90,8 @@ def create_recipe():
         is_public=recipe_info.get('is_public', True),
         preparation_time=recipe_info.get('preparation_time', None),
         date_created=date.today(),
-        user_id=get_jwt_identity()
+        user_id=get_jwt_identity(),
+        category=category  # Assign the category instance if it exists or None
     )
 
     # Add the new recipe to the session and commit it to the database

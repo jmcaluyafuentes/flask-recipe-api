@@ -114,7 +114,7 @@ def create_user():
     db.session.commit()
 
     # Return the serialized recipe data and a 201 Created status code
-    return UserSchema().dump(user), 201
+    return UserSchema(exclude=['password']).dump(user), 201
 
 @users_bp.route("/<user_id>", methods=["PUT", "PATCH"])
 def update_user(user_id):

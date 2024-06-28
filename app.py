@@ -93,20 +93,45 @@ def invalid_request(err):
     """
     return {"error": vars(err)['messages']}, 400
 
+# @app.errorhandler(IntegrityError)
+# def integrity_error(_):
+#     """
+#     This function is called when an IntegrityError is raised,
+#     due to a violation of a database integrity constraint,
+#     such as a unique constraint violation.
+
+#     Args:
+#         _ (Exception): The exception that triggered this handler. Placeholder parameter (unused).
+
+#     Returns:
+#         tuple: A JSON response containing the error message and the HTTP status code 400.
+#     """
+#     return {'error': 'The provided title already exists. Please choose a different title.'}, 400
+
 @app.errorhandler(IntegrityError)
-def integrity_error(_):
+def handle_integrity_error(err):
     """
-    This function is called when an IntegrityError is raised,
-    due to a violation of a database integrity constraint,
-    such as a unique constraint violation.
+    Error handler for IntegrityError exceptions.
 
     Args:
-        _ (Exception): The exception that triggered this handler. Placeholder parameter (unused).
+        e (Exception): The IntegrityError exception raised.
 
     Returns:
-        tuple: A JSON response containing the error message and the HTTP status code 400.
+        tuple: A tuple containing a dictionary with error messages and an integer
+            representing the HTTP status code (400).
     """
-    return {'error': 'The provided title already exists. Please choose a different title.'}, 400
+    # Get the original error message
+    error_message = str(err.orig)
+
+    if 'unique constraint' in error_message.lower():
+        # Extracting the field name causing the violation from the error message
+        field_name = error_message.split('(')[-1].split(')')[0]
+
+        # Return a JSON response with the specific field causing the error
+        return {'error': f'{field_name} already exists. Please choose a different value.'}, 400
+    else:
+        # Return a generic error message for other IntegrityError cases
+        return {'error': 'Database integrity error', 'message': str(err.orig)}, 400
 
 # Print all routes with endpoints that are registered in the app
 print(app.url_map)

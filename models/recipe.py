@@ -22,6 +22,7 @@ class Recipe(db.Model):
         preparation_time (int): The time required to prepare the recipe in minutes (optional).
         date_created (date): The timestamp when the recipe was created.
         user_id (int): The foreign key of users table.
+        category_id (int): The foreign key of categories table.
     """
     __tablename__ = 'recipes'
 
@@ -32,11 +33,15 @@ class Recipe(db.Model):
     preparation_time: Mapped[Optional[int]]
     date_created: Mapped[date]
 
-    # Set up a relationship in SQLAlchemy and map it to a user
+    # Set up a relationship and map the user_id column as a foreign key to the users table
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    # Establish a relationship between the Recipe and User models
     user: Mapped['User'] = relationship(back_populates='recipes') # type: ignore
 
-    # cuisine_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    # Set up a relationship and map the category_id column as a foreign key to the categories table
+    category_id: Mapped[Optional[int]] = mapped_column(ForeignKey('categories.id'))
+    # Establish a relationship between the Recipe and Category models
+    category: Mapped['Category'] = relationship(back_populates='recipes') # type: ignore
 
 class RecipeSchema(ma.Schema):
     """
@@ -49,11 +54,14 @@ class RecipeSchema(ma.Schema):
         is_public (bool): Indicates whether the recipe is public or private.
         preparation_time (int): The time required to prepare the recipe in minutes.
         date_created (date): The date when the recipe was created.
+        user (model): The nested record of user model.
+        category (model): The nested record of category model.
     """
     user = fields.Nested('UserSchema', exclude=['password'])
+    category = fields.Nested('CategorySchema')
 
     class Meta:
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'title', 'description', 'is_public', 'preparation_time', 'date_created', 'user')
+        fields = ('id', 'title', 'description', 'is_public', 'preparation_time', 'date_created', 'user', 'category')
