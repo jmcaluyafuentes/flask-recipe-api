@@ -123,25 +123,30 @@ def db_create():
         # Instructions of the first recipe
         Instruction(
             step_number=1,
-            task='Boil the spaghetti.'
+            task='Boil the spaghetti.',
+            recipe=recipes[0]
         ),
         Instruction(
             step_number=2,
-            task='Fry the bacon.'
+            task='Fry the bacon.',
+            recipe=recipes[0]
         ),
         Instruction(
             step_number=3,
-            task='Mix eggs with cheese.'
+            task='Mix eggs with cheese.',
+            recipe=recipes[0]
         ),
-        
+
         # Instructions of the first recipe
         Instruction(
             step_number=1,
-            task='Cook the chicken.'
+            task='Cook the chicken.',
+            recipe=recipes[1]
         ),
         Instruction(
             step_number=2,
-            task='Assemble the tacos.'
+            task='Assemble the tacos.',
+            recipe=recipes[1]
         )
     ]
 

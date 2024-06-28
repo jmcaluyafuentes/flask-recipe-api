@@ -3,9 +3,10 @@ This module defines SQLAlchemy models and Marshmallow schemas for handling Instr
 """
 
 # Import statements
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Text
-from init import db
+from typing import Optional
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Text, ForeignKey
+from init import db, ma
 
 class Instruction(db.Model):
     """
@@ -22,3 +23,18 @@ class Instruction(db.Model):
     step_number: Mapped[int]
     task: Mapped[str] = mapped_column(Text())
     # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
+
+    # Set up a relationship and map the recipe_id column as a foreign key to the recipes table
+    recipe_id: Mapped[Optional[int]] = mapped_column(ForeignKey('recipes.id'))
+    # Establish a relationship between the Recipe and Ingredients models
+    recipe: Mapped['Recipe'] = relationship(back_populates='instructions') # type: ignore
+
+class InstructionSchema(ma.Schema):
+    """
+    Marshmallow schema for serializing and deserializing Instruction objects.
+    """
+    class Meta:
+        """
+        Inner class that specifies the fields to include in the schema.
+        """
+        fields = ('id', 'step_number', 'task')

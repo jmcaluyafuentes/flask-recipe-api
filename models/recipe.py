@@ -44,6 +44,7 @@ class Recipe(db.Model):
     category: Mapped['Category'] = relationship(back_populates='recipes') # type: ignore
 
     ingredients: Mapped[List['Ingredient']] = relationship(back_populates='recipe') # type: ignore
+    instructions: Mapped[List['Instruction']] = relationship(back_populates='recipe') # type: ignore
 
 class RecipeSchema(ma.Schema):
     """
@@ -59,13 +60,15 @@ class RecipeSchema(ma.Schema):
         user (model): The nested record of user model.
         category (model): The nested record of category model.
         ingredients (list): The list of ingredients for the recipe.
+        intructions (list): The list of intructions for the recipe.
     """
     user = fields.Nested('UserSchema', exclude=['password'])
     category = fields.Nested('CategorySchema')
     ingredients = fields.Nested('IngredientSchema', many=True)
+    instructions = fields.Nested('InstructionSchema', many=True)
 
     class Meta:
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'title', 'description', 'is_public', 'preparation_time', 'date_created', 'user', 'category', 'ingredients')
+        fields = ('id', 'title', 'description', 'is_public', 'preparation_time', 'date_created', 'user', 'category', 'ingredients', 'instructions')

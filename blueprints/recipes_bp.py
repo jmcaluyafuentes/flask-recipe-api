@@ -8,6 +8,8 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from init import db
 from models.recipe import Recipe, RecipeSchema
+from models.ingredient import Ingredient
+from models.instruction import Instruction
 from models.category import Category
 from auth import authorize_owner
 
@@ -66,11 +68,17 @@ def create_recipe():
         KeyError: If there is a missing field.
     """
     # Load the request data and validate it against the RecipeSchema
-    recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time', 'category']).load(request.json, unknown='exclude')
+    recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time', 'category', 'ingredients', 'instructions']).load(request.json, unknown='exclude')
     
     # Extract category information from the request
     category_data = recipe_info.get('category', {})
     cuisine_name = category_data.get('cuisine_name') if isinstance(category_data, dict) else None
+
+    # Extract ingredients information from the request
+    ingredients_data = recipe_info.get('ingredients', [])
+
+    # Extract instructions information from the request
+    instructions_data = recipe_info.get('instructions', [])
 
     # Initialize category variable to None
     category = None
@@ -96,6 +104,30 @@ def create_recipe():
 
     # Add the new recipe to the session and commit it to the database
     db.session.add(recipe)
+    db.session.commit()
+
+    # Create and add ingredients to the recipe
+    ingredients = []
+    for ingredient_data in ingredients_data:
+        ingredient = Ingredient(
+            name=ingredient_data['name'],
+            quantity=ingredient_data.get('quantity'),
+            recipe=recipe
+        )
+        db.session.add(ingredient)
+        ingredients.append(ingredient)
+    db.session.commit()
+
+    # Create and add instructions to the recipe
+    instructions = []
+    for instruction_data in instructions_data:
+        instruction = Instruction(
+            step_number=instruction_data['step_number'],
+            task=instruction_data['task'],
+            recipe=recipe
+        )
+        db.session.add(instruction)
+        instructions.append(instruction)
     db.session.commit()
 
     # Return the serialized recipe data and a 201 Created status code
