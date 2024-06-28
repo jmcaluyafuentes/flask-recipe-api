@@ -177,13 +177,85 @@ def update_recipe(recipe_id):
     authorize_owner(recipe)
 
     # Load the request data and validate it against the RecipeSchema
-    recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time']).load(request.json, unknown='exclude')
+    recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time', 'category', 'ingredients', 'instructions']).load(request.json, unknown='exclude')
 
     # Update the recipe fields if new values are provided, otherwise keep the existing values
     recipe.title = recipe_info.get('title', recipe.title)
     recipe.description = recipe_info.get('description', recipe.description)
     recipe.is_public = recipe_info.get('is_public', recipe.is_public)
     recipe.preparation_time = recipe_info.get('preparation_time', recipe.preparation_time)
+
+    # Update the category if provided
+    if 'category' in recipe_info:
+        category_data = recipe_info['category']
+        cuisine_name = category_data.get('cuisine_name')
+        if cuisine_name:
+            category = Category.query.filter_by(cuisine_name=cuisine_name).first()
+            if not category:
+                category = Category(cuisine_name=cuisine_name)
+                db.session.add(category)
+                db.session.commit()
+            recipe.category = category
+
+    # Update or add ingredients if provided
+    if 'ingredients' in recipe_info:
+        new_ingredient_data = recipe_info['ingredients']
+
+        # Get current ingredients as a dictionary for easy lookup by ID
+        current_ingredients = {ing.ingredient_id: ing for ing in recipe.ingredients}
+
+        for ingredient_data in new_ingredient_data:
+            ingredient_id = ingredient_data.get('id')
+
+            if ingredient_id and ingredient_id in current_ingredients:
+                # Update existing ingredient
+                ingredient = current_ingredients[ingredient_id]
+                ingredient.name = ingredient_data.get('name', ingredient.name)
+                ingredient.quantity = ingredient_data.get('quantity', ingredient.quantity)
+            else:
+                # Add new ingredient
+                new_ingredient = Ingredient(
+                    name=ingredient_data['name'],
+                    quantity=ingredient_data.get('quantity'),
+                    recipe_id=recipe.recipe_id  # Ensure recipe_id is set for new ingredients
+                )
+                db.session.add(new_ingredient)
+
+        # Remove ingredients that are not in the new data
+        new_ingredient_ids = {ing.get('id') for ing in new_ingredient_data if ing.get('id')}
+        for ingredient_id in list(current_ingredients.keys()):
+            if ingredient_id not in new_ingredient_ids:
+                db.session.delete(current_ingredients[ingredient_id])
+
+    # Update or add instructions if provided
+    if 'instructions' in recipe_info:
+        new_instruction_data = recipe_info['instructions']
+
+        # Get current instructions as a dictionary for easy lookup by ID
+        current_instructions = {instr.instruction_id: instr for instr in recipe.instructions}
+
+        for instruction_data in new_instruction_data:
+            instruction_id = instruction_data.get('id')
+
+            if instruction_id and instruction_id in current_instructions:
+                # Update existing instruction
+                instruction = current_instructions[instruction_id]
+                instruction.step_number = instruction_data.get('step_number', instruction.step_number)
+                instruction.task = instruction_data.get('task', instruction.task)
+            else:
+                # Add new instruction
+                new_instruction = Instruction(
+                    step_number=instruction_data['step_number'],
+                    task=instruction_data['task'],
+                    recipe_id=recipe.recipe_id  # Ensure recipe_id is set for new instructions
+                )
+                db.session.add(new_instruction)
+
+        # Remove instructions that are not in the new data
+        new_instruction_ids = {instr.get('id') for instr in new_instruction_data if instr.get('id')}
+        for instruction_id in list(current_instructions.keys()):
+            if instruction_id not in new_instruction_ids:
+                db.session.delete(current_instructions[instruction_id])
 
     # Commit the updated recipe to the database
     db.session.commit()
