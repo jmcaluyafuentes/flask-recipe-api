@@ -10,6 +10,7 @@ Student: John Fuentes
 
 # Import statements
 from marshmallow.exceptions import ValidationError
+from sqlalchemy.exc import IntegrityError
 from init import app
 from blueprints.cli_bp import db_commands
 from blueprints.users_bp import users_bp
@@ -39,7 +40,7 @@ def not_found(_):
     This function is called when a 404 error is raised.
 
     Args:
-        _: Placeholder parameter (unused).
+        _ (Exception): The exception that triggered this handler. Placeholder parameter (unused).
 
     Returns:
         tuple: A JSON response with an error message and a 404 status code.
@@ -54,8 +55,8 @@ def method_not_allowed(_):
     This function is called when a 405 error is raised.
 
     Args:
-        _: Placeholder parameter (unused).
-
+        _ (Exception): The exception that triggered this handler. Placeholder parameter (unused).
+ 
     Returns:
         tuple: A tuple containing a dictionary with an error message and an integer 
             representing the HTTP status code (405).
@@ -91,6 +92,21 @@ def invalid_request(err):
             representing the HTTP status code (400).
     """
     return {"error": vars(err)['messages']}, 400
+
+@app.errorhandler(IntegrityError)
+def integrity_error(_):
+    """
+    This function is called when an IntegrityError is raised,
+    due to a violation of a database integrity constraint,
+    such as a unique constraint violation.
+
+    Args:
+        _ (Exception): The exception that triggered this handler. Placeholder parameter (unused).
+
+    Returns:
+        tuple: A JSON response containing the error message and the HTTP status code 400.
+    """
+    return {'error': 'The provided title already exists. Please choose a different title.'}, 400
 
 # Print all routes with endpoints that are registered in the app
 print(app.url_map)
