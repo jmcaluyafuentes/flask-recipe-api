@@ -43,8 +43,8 @@ class Recipe(db.Model):
     # Establish a relationship between the Recipe and Category models
     category: Mapped['Category'] = relationship(back_populates='recipes') # type: ignore
 
-    ingredients: Mapped[List['Ingredient']] = relationship(back_populates='recipe') # type: ignore
-    instructions: Mapped[List['Instruction']] = relationship(back_populates='recipe') # type: ignore
+    ingredients: Mapped[List['Ingredient']] = relationship(back_populates='recipe', cascade="all, delete-orphan") # type: ignore
+    instructions: Mapped[List['Instruction']] = relationship(back_populates='recipe', cascade="all, delete-orphan") # type: ignore
 
 class RecipeSchema(ma.Schema):
     """
