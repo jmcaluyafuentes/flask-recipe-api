@@ -26,7 +26,7 @@ class Recipe(db.Model):
     """
     __tablename__ = 'recipes'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    recipe_id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(200), unique=True)
     description: Mapped[Optional[str]] = mapped_column(Text())
     is_public: Mapped[bool] = mapped_column(Boolean, server_default="true")
@@ -34,12 +34,12 @@ class Recipe(db.Model):
     date_created: Mapped[date]
 
     # Set up a relationship and map the user_id column as a foreign key to the users table
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
     # Establish a relationship between the Recipe and User models
     user: Mapped['User'] = relationship(back_populates='recipes') # type: ignore
 
     # Set up a relationship and map the category_id column as a foreign key to the categories table
-    category_id: Mapped[Optional[int]] = mapped_column(ForeignKey('categories.id'))
+    category_id: Mapped[Optional[int]] = mapped_column(ForeignKey('categories.category_id'))
     # Establish a relationship between the Recipe and Category models
     category: Mapped['Category'] = relationship(back_populates='recipes') # type: ignore
 
@@ -51,7 +51,7 @@ class RecipeSchema(ma.Schema):
     Marshmallow schema for serializing and deserializing Recipe objects.
     
     Fields:
-        id (int): The unique identifier for the recipe.
+        recipe_id (int): The unique identifier for the recipe.
         title (str): The title of the recipe.
         description (str): The description of the recipe.
         is_public (bool): Indicates whether the recipe is public or private.
@@ -71,4 +71,4 @@ class RecipeSchema(ma.Schema):
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'title', 'description', 'is_public', 'preparation_time', 'date_created', 'user', 'category', 'ingredients', 'instructions')
+        fields = ('recipe_id', 'title', 'description', 'is_public', 'preparation_time', 'date_created', 'user', 'category', 'ingredients', 'instructions')

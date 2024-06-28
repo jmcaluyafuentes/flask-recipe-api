@@ -13,19 +13,19 @@ class Ingredient(db.Model):
     Ingredient model representing the ingredients table in the database.
 
     Attributes:
-        id (int): The primary key for the ingredient.
+        ingredient_id (int): The primary key for the ingredient.
         name (str): The name of the ingredient.
         quantity (str): The quantity of the ingredient (optional).
     """
     __tablename__ = 'ingredients'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    ingredient_id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200))
     quantity: Mapped[Optional[str]] = mapped_column(String(50))
     # recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
 
     # Set up a relationship and map the recipe_id column as a foreign key to the recipes table
-    recipe_id: Mapped[Optional[int]] = mapped_column(ForeignKey('recipes.id'))
+    recipe_id: Mapped[Optional[int]] = mapped_column(ForeignKey('recipes.recipe_id'))
     # Establish a relationship between the Recipe and Ingredients models
     recipe: Mapped['Recipe'] = relationship(back_populates='ingredients') # type: ignore
 
@@ -37,4 +37,4 @@ class IngredientSchema(ma.Schema):
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'name', 'quantity')
+        fields = ('ingredient_id', 'name', 'quantity')

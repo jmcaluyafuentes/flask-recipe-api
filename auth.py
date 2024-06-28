@@ -28,7 +28,7 @@ def admin_only(fn):
         # Get the user ID from the JWT payload
         user_id = get_jwt_identity()
         # Query the database to fetch the user and check if it is an admin
-        stmt = db.select(User).where(User.id == user_id, User.is_admin)
+        stmt = db.select(User).where(User.user_id == user_id, User.is_admin)
         # Execute query (scalar)
         user = db.session.scalar(stmt)
         # Return the decorated function if user is admin, otherwise return an error response

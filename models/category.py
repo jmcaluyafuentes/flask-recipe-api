@@ -13,12 +13,12 @@ class Category(db.Model):
     Category model representing the categories table in the database.
 
     Attributes:
-        id (int): The primary key for the category.
+        category_id (int): The primary key for the category.
         cuisine_name (str): The name of the category, particularly the cuisine.
     """
     __tablename__ = 'categories'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    category_id: Mapped[int] = mapped_column(primary_key=True)
     cuisine_name: Mapped[str] = mapped_column(String(100))
 
     recipes: Mapped[List['Recipe']] = relationship(back_populates='category') # type: ignore
@@ -31,4 +31,4 @@ class CategorySchema(ma.Schema):
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'cuisine_name')
+        fields = ('category_id', 'cuisine_name')
