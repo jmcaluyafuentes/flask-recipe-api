@@ -6,6 +6,8 @@ This module defines SQLAlchemy models and Marshmallow schemas for handling User 
 from typing import List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Boolean
+from marshmallow import fields
+from marshmallow.validate import Length
 from init import db, ma
 
 class User(db.Model):
@@ -40,6 +42,9 @@ class UserSchema(ma.Schema):
         name (str): The name of the user.
         is_admin (bool): Indicates whether the user has admin privileges.
     """
+    email = fields.Email(required=True)
+    password = fields.String(validate=Length(min=8, error='Password must be at least 8 characters long'), required=True)
+
     class Meta:
         """
         Inner class that specifies the fields to include in the schema.
