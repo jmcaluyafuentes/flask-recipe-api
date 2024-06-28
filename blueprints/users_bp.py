@@ -63,7 +63,7 @@ def all_users():
     users = db.session.scalars(stmt).all()
 
     # Return the serialized users
-    return UserSchema(many=True).dump(users)
+    return UserSchema(many=True, exclude=['password']).dump(users)
 
 @users_bp.route("/<int:user_id>")
 def one_user(user_id):
@@ -80,7 +80,7 @@ def one_user(user_id):
     user = db.get_or_404(User, user_id)
 
     # Return the serialized user
-    return UserSchema().dump(user)
+    return UserSchema(exclude=['password']).dump(user)
 
 @users_bp.route("/register", methods=["POST"])
 def create_user():
