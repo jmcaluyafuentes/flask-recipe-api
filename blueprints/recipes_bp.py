@@ -309,25 +309,25 @@ def delete_recipe(recipe_id):
     # Return an empty dictionary to signify successful deletion.
     return {}
 
-@recipes_bp.route("/random", methods=["GET"])
+@recipes_bp.route("/random")
 def random_recipe():
     """
-    Retrieve a random recipe from the database.
+    Retrieve a random public recipe from the database.
 
     Returns:
-        dict: A JSON representation of a random recipe record.
+        dict: A JSON representation of a random public recipe record.
     """
-    # Fetch all recipe IDs from the database
-    all_recipe_ids = [recipe.recipe_id for recipe in Recipe.query.all()]
+    # Fetch all public recipe IDs from the database
+    public_recipe_ids = [recipe.recipe_id for recipe in Recipe.query.filter_by(is_public=True).all()]
 
-    if not all_recipe_ids:
-        # Handle case where there are no recipes in the database
-        return {"message": "No recipes found"}, 404
+    if not public_recipe_ids:
+        # Handle case where there are no public recipes in the database
+        return {"message": "No public recipes found"}, 404
 
-    # Choose a random recipe ID
-    random_recipe_id = random.choice(all_recipe_ids)
+    # Choose a random public recipe ID
+    random_recipe_id = random.choice(public_recipe_ids)
 
-    # Fetch the recipe with the random ID
+    # Fetch the recipe with the random public ID
     recipe = Recipe.query.get(random_recipe_id)
 
     # Serialize the recipe record to JSON format
