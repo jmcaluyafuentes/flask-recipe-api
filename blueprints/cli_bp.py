@@ -57,10 +57,10 @@ def db_create():
 
     categories = [
         Category(
-            name='Italian'
+            cuisine_name='Italian'
         ),
         Category(
-            name='Mexican'
+            cuisine_name='Mexican'
         )
     ]
 

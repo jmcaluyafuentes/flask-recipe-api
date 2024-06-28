@@ -13,12 +13,12 @@ class Category(db.Model):
 
     Attributes:
         id (int): The primary key for the category.
-        name (str): The name of the category, particularly the cuisine.
+        cuisine_name (str): The name of the category, particularly the cuisine.
     """
     __tablename__ = 'categories'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(100))
+    cuisine_name: Mapped[str] = mapped_column(String(100))
 
 class CategorySchema(ma.Schema):
     """
@@ -28,4 +28,4 @@ class CategorySchema(ma.Schema):
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'name')
+        fields = ('id', 'cuisine_name')

@@ -25,19 +25,19 @@ def all_categories():
     # Return the serialized categories
     return CategorySchema(many=True).dump(categories)
 
-@categories_bp.route("/<int:cat_id>")
-def one_category(cat_id):
+@categories_bp.route("/<int:category_id>")
+def one_category(category_id):
     """
     Retrieve a category record by its ID.
 
     Args:
-        cat_id (int): The ID of the category to retrieve.
+        category_id (int): The ID of the category to retrieve.
 
     Returns:
         dict: A JSON representation of the category record.
     """
     # Fetch the category with the specified ID, or return a 404 error if not found
-    category = db.get_or_404(Category, cat_id)
+    category = db.get_or_404(Category, category_id)
 
     # Return the serialized category
     return CategorySchema().dump(category)
