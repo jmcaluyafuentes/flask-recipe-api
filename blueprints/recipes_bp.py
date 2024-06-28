@@ -13,7 +13,7 @@ from models.ingredient import Ingredient
 from models.instruction import Instruction
 from models.category import Category
 from models.user import User
-from auth import authorize_owner
+from auth import authorize_owner, current_user_is_admin
 
 # Define a blueprint for recipe-related routes
 recipes_bp = Blueprint('recipes', __name__, url_prefix='/recipes')
@@ -107,6 +107,38 @@ def recipes_by_category(category_id):
 
     # Retrieve public recipes associated with the category
     recipes = Recipe.query.filter_by(category_id=category_id, is_public=True).all()
+
+    # Serialize the recipe record to JSON format
+    return RecipeSchema(many=True).dump(recipes)
+
+@recipes_bp.route('/category/<int:category_id>/user/<int:user_id>')
+@jwt_required()
+def recipes_by_category_and_user(category_id, user_id):
+    """
+    Retrieve recipes by category filtered by the user who created them.
+
+    Args:
+        category_id (int): The ID of the category to fetch recipes for.
+        user_id (int): The ID of the user who created the recipes.
+
+    Returns:
+        list of dict: A JSON representation of recipes matching the criteria.
+    """
+    # Get the current user ID from the JWT payload
+    current_user_id = get_jwt_identity()
+
+    # Ensure the current user is requesting their own recipes or they are an admin
+    if current_user_id != user_id and not current_user_is_admin():
+        return {"error": "Unauthorized access"}, 403
+
+    # Query the database to fetch the category by its ID
+    category = db.session.query(Category).get(category_id)
+
+    if not category:
+        return {"error": "Category not found"}, 404
+
+    # Retrieve recipes by category and user ID
+    recipes = Recipe.query.filter_by(category_id=category_id, user_id=user_id).all()
 
     # Serialize the recipe record to JSON format
     return RecipeSchema(many=True).dump(recipes)

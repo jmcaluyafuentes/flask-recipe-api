@@ -57,3 +57,19 @@ def authorize_owner(recipe):
     user_id = get_jwt_identity()
     if user_id != recipe.user_id:
         abort(make_response(jsonify(error = 'You must be the author of recipe to access this resource'), 403))
+
+def current_user_is_admin():
+    """
+    Check if the current user is an admin based on their JWT identity.
+
+    Returns:
+        bool: True if the current user is an admin, False otherwise.
+    """
+    # Get the user ID from the JWT payload
+    user_id = get_jwt_identity()
+
+    # Query the database to fetch the user and check if it is an admin
+    stmt = db.select(User.is_admin).where(User.user_id == user_id)
+    is_admin = db.session.scalar(stmt)
+
+    return is_admin
