@@ -4,7 +4,7 @@ This module is a blueprint for routes to manage recipe records.
 
 from datetime import date
 import random
-from flask import Blueprint, request
+from flask import Blueprint, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from init import db
@@ -54,9 +54,10 @@ def get_all_recipes():
     return RecipeSchema(many=True).dump(all_recipes)
 
 @recipes_bp.route("/<int:recipe_id>")
+@jwt_required()
 def one_recipe(recipe_id):
     """
-    Retrieve a recipe record by its ID.
+    Retrieve a recipe record by its ID. Only accessible to admin or the user who created the recipe.
 
     Args:
         recipe_id (int): The ID of the recipe to retrieve.
@@ -64,8 +65,15 @@ def one_recipe(recipe_id):
     Returns:
         dict: A JSON representation of the recipe record.
     """
+    # Get the current user's ID from the JWT payload
+    current_user_id = get_jwt_identity()
+
     # Fetch the recipe with the specified ID, or return a 404 error if not found
     recipe = db.get_or_404(Recipe, recipe_id)
+
+    # Check if the current user is either an admin or the author of the recipe
+    if current_user_id != recipe.user_id and not current_user_is_admin():
+        return {"error": "You are not authorized to access this resource"}, 403
 
     # Return the serialized recipe
     return RecipeSchema().dump(recipe)
