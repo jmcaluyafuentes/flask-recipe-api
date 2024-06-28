@@ -20,15 +20,13 @@ recipes_bp = Blueprint('recipes', __name__, url_prefix='/recipes')
 @recipes_bp.route("/")
 def all_recipes():
     """
-    Route to fetch all recipes from the database.
+    Route to fetch all public recipes from the database.
 
     Returns:
         list of dict: A JSON representation of all user records.
     """
-    # Create a select statement to fetch all recipes
-    stmt = db.select(Recipe)
-    # Execute the query and fetch all recipes
-    recipes = db.session.scalars(stmt).all()
+    # Query all recipes where is_public is True
+    recipes = Recipe.query.filter_by(is_public=True).all()
 
     # Return the serialized recipes
     return RecipeSchema(many=True).dump(recipes)
@@ -49,6 +47,24 @@ def one_recipe(recipe_id):
 
     # Return the serialized recipe
     return RecipeSchema().dump(recipe)
+
+@recipes_bp.route("/user")
+@jwt_required()
+def get_user_recipes():
+    """
+    Route to fetch all recipes associated with the authenticated user.
+
+    Returns:
+        list of dict: A JSON representation of all recipes associated with the user.
+    """
+    # Get the ID of the authenticated user
+    current_user_id = get_jwt_identity()
+
+    # Query all recipes associated with the current user
+    recipes = Recipe.query.filter_by(user_id=current_user_id).all()
+
+    # Return the serialized recipe
+    return RecipeSchema(many=True).dump(recipes), 200
 
 @recipes_bp.route("/", methods=["POST"])
 @jwt_required()
@@ -302,7 +318,7 @@ def random_recipe():
         dict: A JSON representation of a random recipe record.
     """
     # Fetch all recipe IDs from the database
-    all_recipe_ids = [recipe.id for recipe in Recipe.query.all()]
+    all_recipe_ids = [recipe.recipe_id for recipe in Recipe.query.all()]
 
     if not all_recipe_ids:
         # Handle case where there are no recipes in the database
