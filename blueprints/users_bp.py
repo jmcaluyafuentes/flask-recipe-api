@@ -62,7 +62,7 @@ def all_users():
     # Execute the query and fetch all users
     users = db.session.scalars(stmt).all()
 
-    # Return the serialized users
+    # Return the serialized users data
     return UserSchema(many=True, exclude=['password']).dump(users)
 
 @users_bp.route("/<int:user_id>")
@@ -79,7 +79,7 @@ def one_user(user_id):
     # Fetch the user with the specified ID, or return a 404 error if not found
     user = db.get_or_404(User, user_id)
 
-    # Return the serialized user
+    # Return the serialized user data
     return UserSchema(exclude=['password']).dump(user)
 
 @users_bp.route("/register", methods=["POST"])

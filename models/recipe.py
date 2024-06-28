@@ -4,7 +4,7 @@ This module defines SQLAlchemy models and Marshmallow schemas for handling Recip
 
 # Import statements
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Boolean, Text, ForeignKey
 from marshmallow import fields
@@ -43,6 +43,8 @@ class Recipe(db.Model):
     # Establish a relationship between the Recipe and Category models
     category: Mapped['Category'] = relationship(back_populates='recipes') # type: ignore
 
+    ingredients: Mapped[List['Ingredient']] = relationship(back_populates='recipe') # type: ignore
+
 class RecipeSchema(ma.Schema):
     """
     Marshmallow schema for serializing and deserializing Recipe objects.
@@ -56,12 +58,14 @@ class RecipeSchema(ma.Schema):
         date_created (date): The date when the recipe was created.
         user (model): The nested record of user model.
         category (model): The nested record of category model.
+        ingredients (list): The list of ingredients for the recipe.
     """
     user = fields.Nested('UserSchema', exclude=['password'])
     category = fields.Nested('CategorySchema')
+    ingredients = fields.Nested('IngredientSchema', many=True)
 
     class Meta:
         """
         Inner class that specifies the fields to include in the schema.
         """
-        fields = ('id', 'title', 'description', 'is_public', 'preparation_time', 'date_created', 'user', 'category')
+        fields = ('id', 'title', 'description', 'is_public', 'preparation_time', 'date_created', 'user', 'category', 'ingredients')

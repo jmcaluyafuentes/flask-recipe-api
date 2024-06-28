@@ -72,40 +72,55 @@ def db_create():
             date_created=date.today(),
             preparation_time=30,
             user=users[0],
-            category=categories[0]
+            category=categories[0],
         ),
         Recipe(
             title='Tacos',
             date_created=date.today(),
             is_public=False,
             user=users[1],
-            category=categories[1]
+            category=categories[1],
         )
     ]
 
+    # Add initial data to the session
+    db.session.add_all(recipes)
+
+    # Commit the session to persist changes to the database
+    db.session.commit()
+
     ingredients = [
+        # Ingredients of the first recipe
         Ingredient(
             name='Spaghetti',
-            quantity='200g'
+            quantity='200g',
+            recipe=recipes[0]
         ),
         Ingredient(
             name='Eggs',
-            quantity='4'
+            quantity='4',
+            recipe=recipes[0]
         ),
         Ingredient(
             name='Bacon',
-            quantity='100g'
+            quantity='100g',
+            recipe=recipes[0],
         ),
+
+        # Ingredients of the second recipe
         Ingredient(
-            name='Tortillas'
+            name='Tortillas',
+            recipe=recipes[1]
         ),
         Ingredient(
             name='Chicken',
-            quantity='200g'
+            quantity='200g',
+            recipe=recipes[1]
         )
     ]
 
     instructions = [
+        # Instructions of the first recipe
         Instruction(
             step_number=1,
             task='Boil the spaghetti.'
@@ -118,6 +133,8 @@ def db_create():
             step_number=3,
             task='Mix eggs with cheese.'
         ),
+        
+        # Instructions of the first recipe
         Instruction(
             step_number=1,
             task='Cook the chicken.'
@@ -129,7 +146,6 @@ def db_create():
     ]
 
     # Add initial data to the session
-    db.session.add_all(recipes)
     db.session.add_all(ingredients)
     db.session.add_all(instructions)
 
