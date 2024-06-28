@@ -6,6 +6,7 @@ from datetime import timedelta
 from flask import request
 from flask import Blueprint
 from flask_jwt_extended import create_access_token
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from init import db, bcrypt
 from auth import admin_only
 from models.user import User, UserSchema
@@ -40,7 +41,7 @@ def login():
     # Check if the user exists and if the password is correct
     if user and bcrypt.check_password_hash(user.password, params['password']):
         # Generate a JWT with a 3-hour expiration time
-        token = create_access_token(identity=user.id, expires_delta=timedelta(hours=3))
+        token = create_access_token(identity=user.user_id, expires_delta=timedelta(hours=3))
         # Return the JWT
         return {'token': token}
     else:
@@ -98,23 +99,36 @@ def create_user():
         ValidationError: If the input data does not conform to the expected schema.
         KeyError: If there is a missing field.
     """
-    # Load the request data and validate it against the UserSchema
-    user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
+    try:
+        # Load the request data and validate it against the UserSchema
+        user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
 
-    # Create a new user instance
-    user = User(
-        email=user_info['email'],
-        password=bcrypt.generate_password_hash(user_info['password']).decode('utf-8'),
-        name=user_info['name'],
-        is_admin=user_info.get('is_admin', False)
-    )
+        # Create a new user instance
+        user = User(
+            email=user_info['email'],
+            password=bcrypt.generate_password_hash(user_info['password']).decode('utf-8'),
+            name=user_info['name'],
+            is_admin=user_info.get('is_admin', False)
+        )
 
-    # Add the new user to the session and commit it to the database
-    db.session.add(user)
-    db.session.commit()
+        # Add the new user to the session and commit it to the database
+        db.session.add(user)
+        db.session.commit()
 
-    # Return the serialized recipe data and a 201 Created status code
-    return UserSchema(exclude=['password']).dump(user), 201
+        # Return the serialized recipe data and a 201 Created status code
+        return UserSchema(exclude=['password']).dump(user), 201
+    
+    except IntegrityError as _:
+        # Rollback the session to undo any partial changes due to an integrity constraint violation
+        db.session.rollback()
+        # Return an error message indicating that the email address already exists with a 400 Bad Request status code
+        return {"error": "The email address already exists. Please choose a different email address."}, 400
+
+    except SQLAlchemyError as _:
+        # Rollback the session to undo any partial changes due to a general SQLAlchemy error
+        db.session.rollback()
+        # Return a generic error message indicating a database error with a 500 Internal Server Error status code
+        return {"error": "An error occurred while creating the recipe."}, 500
 
 @users_bp.route("/<user_id>", methods=["PUT", "PATCH"])
 def update_user(user_id):
@@ -137,19 +151,32 @@ def update_user(user_id):
         ValidationError: If the input data does not conform to the expected schema.
         NotFound: If the user with the given ID does not exist.
     """
-    # Fetch the user with the specified ID, or return a 404 error if not found
-    user = db.get_or_404(User, user_id)
-    # Load the request data and validate it against the UserSchema
-    user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
-    
-    # Update the recipe fields if new values are provided, otherwise keep the existing values
-    user.email = user_info.get('email', user.email)
-    user.password = user_info.get(bcrypt.generate_password_hash('password').decode('utf-8'), user.password)
-    user.name = user_info.get('name', user.name)
-    user.admin = user_info.get('is_admin', user.is_admin)
+    try:
+        # Fetch the user with the specified ID, or return a 404 error if not found
+        user = db.get_or_404(User, user_id)
+        # Load the request data and validate it against the UserSchema
+        user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
+        
+        # Update the recipe fields if new values are provided, otherwise keep the existing values
+        user.email = user_info.get('email', user.email)
+        user.password = user_info.get(bcrypt.generate_password_hash('password').decode('utf-8'), user.password)
+        user.name = user_info.get('name', user.name)
+        user.admin = user_info.get('is_admin', user.is_admin)
 
-    # Commit the updated user to the database
-    db.session.commit()
+        # Commit the updated user to the database
+        db.session.commit()
 
-    # Return the serialized updated user data
-    return UserSchema().dump(user)
+        # Return the serialized updated user data
+        return UserSchema().dump(user)
+
+    except IntegrityError as _:
+        # Rollback the session to undo any partial changes due to an integrity constraint violation
+        db.session.rollback()
+        # Return an error message indicating that the email address already exists with a 400 Bad Request status code
+        return {"error": "The email address already exists. Please choose a different email address."}, 400
+
+    except SQLAlchemyError as _:
+        # Rollback the session to undo any partial changes due to a general SQLAlchemy error
+        db.session.rollback()
+        # Return a generic error message indicating a database error with a 500 Internal Server Error status code
+        return {"error": "An error occurred while creating the recipe."}, 500

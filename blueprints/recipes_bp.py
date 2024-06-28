@@ -6,6 +6,7 @@ from datetime import date
 import random
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from init import db
 from models.recipe import Recipe, RecipeSchema
 from models.ingredient import Ingredient
@@ -67,71 +68,84 @@ def create_recipe():
         ValidationError: If the input data does not conform to the expected schema.
         KeyError: If there is a missing field.
     """
-    # Load the request data and validate it against the RecipeSchema
-    recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time', 'category', 'ingredients', 'instructions']).load(request.json, unknown='exclude')
-    
-    # Extract category information from the request
-    category_data = recipe_info.get('category', {})
-    cuisine_name = category_data.get('cuisine_name') if isinstance(category_data, dict) else None
+    try:
+        # Load the request data and validate it against the RecipeSchema
+        recipe_info = RecipeSchema(only=['title', 'description', 'is_public', 'preparation_time', 'category', 'ingredients', 'instructions']).load(request.json, unknown='exclude')
+        
+        # Extract category information from the request
+        category_data = recipe_info.get('category', {})
+        cuisine_name = category_data.get('cuisine_name') if isinstance(category_data, dict) else None
 
-    # Extract ingredients information from the request
-    ingredients_data = recipe_info.get('ingredients', [])
+        # Extract ingredients information from the request
+        ingredients_data = recipe_info.get('ingredients', [])
 
-    # Extract instructions information from the request
-    instructions_data = recipe_info.get('instructions', [])
+        # Extract instructions information from the request
+        instructions_data = recipe_info.get('instructions', [])
 
-    # Initialize category variable to None
-    category = None
+        # Initialize category variable to None
+        category = None
 
-    # If cuisine_name is provided, find or create the corresponding category
-    if cuisine_name:
-        category = Category.query.filter_by(cuisine_name=cuisine_name).first()
-        if not category:
-            category = Category(cuisine_name=cuisine_name)
-            db.session.add(category)
-            db.session.commit()
+        # If cuisine_name is provided, find or create the corresponding category
+        if cuisine_name:
+            category = Category.query.filter_by(cuisine_name=cuisine_name).first()
+            if not category:
+                category = Category(cuisine_name=cuisine_name)
+                db.session.add(category)
+                db.session.commit()
 
-    # Create a new Recipe instance
-    recipe = Recipe (
-        title=recipe_info['title'],
-        description=recipe_info.get('description', ''),
-        is_public=recipe_info.get('is_public', True),
-        preparation_time=recipe_info.get('preparation_time', None),
-        date_created=date.today(),
-        user_id=get_jwt_identity(),
-        category=category  # Assign the category instance if it exists or None
-    )
-
-    # Add the new recipe to the session and commit it to the database
-    db.session.add(recipe)
-    db.session.commit()
-
-    # Create and add ingredients to the recipe
-    ingredients = []
-    for ingredient_data in ingredients_data:
-        ingredient = Ingredient(
-            name=ingredient_data['name'],
-            quantity=ingredient_data.get('quantity'),
-            recipe=recipe
+        # Create a new Recipe instance
+        recipe = Recipe (
+            title=recipe_info['title'],
+            description=recipe_info.get('description', ''),
+            is_public=recipe_info.get('is_public', True),
+            preparation_time=recipe_info.get('preparation_time', None),
+            date_created=date.today(),
+            user_id=get_jwt_identity(),
+            category=category  # Assign the category instance if it exists or None
         )
-        db.session.add(ingredient)
-        ingredients.append(ingredient)
-    db.session.commit()
 
-    # Create and add instructions to the recipe
-    instructions = []
-    for instruction_data in instructions_data:
-        instruction = Instruction(
-            step_number=instruction_data['step_number'],
-            task=instruction_data['task'],
-            recipe=recipe
-        )
-        db.session.add(instruction)
-        instructions.append(instruction)
-    db.session.commit()
+        # Add the new recipe to the session and commit it to the database
+        db.session.add(recipe)
+        db.session.commit()
 
-    # Return the serialized recipe data and a 201 Created status code
-    return RecipeSchema().dump(recipe), 201
+        # Create and add ingredients to the recipe
+        ingredients = []
+        for ingredient_data in ingredients_data:
+            ingredient = Ingredient(
+                name=ingredient_data['name'],
+                quantity=ingredient_data.get('quantity'),
+                recipe=recipe
+            )
+            db.session.add(ingredient)
+            ingredients.append(ingredient)
+        db.session.commit()
+
+        # Create and add instructions to the recipe
+        instructions = []
+        for instruction_data in instructions_data:
+            instruction = Instruction(
+                step_number=instruction_data['step_number'],
+                task=instruction_data['task'],
+                recipe=recipe
+            )
+            db.session.add(instruction)
+            instructions.append(instruction)
+        db.session.commit()
+
+        # Return the serialized recipe data and a 201 Created status code
+        return RecipeSchema().dump(recipe), 201
+
+    except IntegrityError as _:
+        # Rollback the session to undo any partial changes due to an integrity constraint violation
+        db.session.rollback()
+        # Return an error message indicating that the recipe title already exists with a 400 Bad Request status code
+        return {"error": "Recipe title already exists. Please choose a different title."}, 400
+
+    except SQLAlchemyError as _:
+        # Rollback the session to undo any partial changes due to a general SQLAlchemy error
+        db.session.rollback()
+        # Return a generic error message indicating a database error with a 500 Internal Server Error status code
+        return {"error": "An error occurred while creating the recipe."}, 500
 
 @recipes_bp.route("/<int:recipe_id>", methods=["PUT", "PATCH"])
 @jwt_required()
