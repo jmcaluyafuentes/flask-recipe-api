@@ -12,13 +12,14 @@ from models.recipe import Recipe, RecipeSchema
 from models.ingredient import Ingredient
 from models.instruction import Instruction
 from models.category import Category
+from models.user import User
 from auth import authorize_owner
 
 # Define a blueprint for recipe-related routes
 recipes_bp = Blueprint('recipes', __name__, url_prefix='/recipes')
 
-@recipes_bp.route("/")
-def all_recipes():
+@recipes_bp.route("/public")
+def all_public_recipes():
     """
     Route to fetch all public recipes from the database.
 
@@ -30,6 +31,27 @@ def all_recipes():
 
     # Return the serialized recipes
     return RecipeSchema(many=True).dump(recipes)
+
+@recipes_bp.route("/all")
+@jwt_required()  # Ensure only authenticated users can access this route
+def get_all_recipes():
+    """
+    Retrieve all recipes from the database.
+
+    Returns:
+        list of dict: A JSON representation of all recipes.
+    """
+    # Check if the current user is an admin
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
+    if not current_user.is_admin:
+        return {"message": "Unauthorized, admin access required"}, 403
+
+    # Fetch all recipes from the database
+    all_recipes = Recipe.query.all()
+
+    # Return the serialized recipes
+    return RecipeSchema(many=True).dump(all_recipes)
 
 @recipes_bp.route("/<int:recipe_id>")
 def one_recipe(recipe_id):
@@ -65,6 +87,53 @@ def get_user_recipes():
 
     # Return the serialized recipe
     return RecipeSchema(many=True).dump(recipes), 200
+
+@recipes_bp.route('/public/category/<int:category_id>')
+def recipes_by_category(category_id):
+    """
+    Retrieve all recipes associated with a specific category.
+
+    Args:
+        category_id (int): The ID of the category to fetch recipes for.
+
+    Returns:
+        list of dict: A JSON representation of recipes associated with the category.
+    """
+    # Query the database to fetch the category by its ID
+    category = db.session.query(Category).get(category_id)
+
+    if not category:
+        return {"error": "Category not found"}, 404
+
+    # Retrieve public recipes associated with the category
+    recipes = Recipe.query.filter_by(category_id=category_id, is_public=True).all()
+
+    # Serialize the recipe record to JSON format
+    return RecipeSchema(many=True).dump(recipes)
+
+@recipes_bp.route("/random")
+def random_recipe():
+    """
+    Retrieve a random public recipe from the database.
+
+    Returns:
+        dict: A JSON representation of a random public recipe record.
+    """
+    # Fetch all public recipe IDs from the database
+    public_recipe_ids = [recipe.recipe_id for recipe in Recipe.query.filter_by(is_public=True).all()]
+
+    if not public_recipe_ids:
+        # Handle case where there are no public recipes in the database
+        return {"message": "No public recipes found"}, 404
+
+    # Choose a random public recipe ID
+    random_recipe_id = random.choice(public_recipe_ids)
+
+    # Fetch the recipe with the random public ID
+    recipe = Recipe.query.get(random_recipe_id)
+
+    # Serialize the recipe record to JSON format
+    return RecipeSchema().dump(recipe)
 
 @recipes_bp.route("/", methods=["POST"])
 @jwt_required()
@@ -309,26 +378,3 @@ def delete_recipe(recipe_id):
     # Return an empty dictionary to signify successful deletion.
     return {}
 
-@recipes_bp.route("/random")
-def random_recipe():
-    """
-    Retrieve a random public recipe from the database.
-
-    Returns:
-        dict: A JSON representation of a random public recipe record.
-    """
-    # Fetch all public recipe IDs from the database
-    public_recipe_ids = [recipe.recipe_id for recipe in Recipe.query.filter_by(is_public=True).all()]
-
-    if not public_recipe_ids:
-        # Handle case where there are no public recipes in the database
-        return {"message": "No public recipes found"}, 404
-
-    # Choose a random public recipe ID
-    random_recipe_id = random.choice(public_recipe_ids)
-
-    # Fetch the recipe with the random public ID
-    recipe = Recipe.query.get(random_recipe_id)
-
-    # Serialize the recipe record to JSON format
-    return RecipeSchema().dump(recipe)
