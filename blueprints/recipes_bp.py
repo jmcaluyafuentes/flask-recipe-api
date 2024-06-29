@@ -120,6 +120,48 @@ def recipes_by_category(category_id):
     # Serialize the recipe record to JSON format
     return RecipeSchema(many=True).dump(recipes)
 
+@recipes_bp.route('/public/filter')
+def filter_recipes():
+    """
+    Endpoint to filter recipes based on recipe name, preparation time, ingredient name, and cuisine name.
+
+    Query Parameters:
+        - title: Title or name of the recipe (string)
+        - prep_time: Maximum preparation time in minutes (integer)
+        - ingredient_name: Name of the ingredient (string)
+        - cuisine_name: Name of the cuisine category (string)
+
+    Returns:
+        list: A JSON representation of filtered recipes.
+    """
+    # Retrieve query parameters
+    title = request.args.get('title')
+    prep_time = request.args.get('prep_time')
+    ingredient_name = request.args.get('ingredient_name')
+    cuisine_name = request.args.get('cuisine_name')
+
+    # Query public recipes
+    query = Recipe.query.filter_by(is_public=True)
+
+    # Apply filters based on query parameters
+    if title:
+        query = query.filter(Recipe.title.ilike(f"%{title}%"))
+
+    if prep_time:
+        query = query.filter(Recipe.preparation_time <= int(prep_time))
+
+    if ingredient_name:
+        query = query.join(Recipe.ingredients).filter(Ingredient.name.ilike(f"%{ingredient_name}%"))
+
+    if cuisine_name:
+        query = query.join(Recipe.category).filter(Category.cuisine_name.ilike(f"%{cuisine_name}%"))
+
+    # Execute the query to fetch filtered recipes
+    filtered_recipes = query.all()
+
+    # Serialize the filtered recipes
+    return RecipeSchema(many=True).dump(filtered_recipes)
+
 @recipes_bp.route('/user/<int:user_id>/category/<int:category_id>')
 @jwt_required()
 def recipes_by_user_and_category(user_id, category_id):
@@ -176,10 +218,10 @@ def recipes_by_user_and_random():
         abort(404, description="No recipes found.")
 
     # Select a random recipe from all_recipes
-    random_recipe = random.choice(all_recipes)
+    random_recipe_by_user = random.choice(all_recipes)
 
     # Serialize the selected recipe
-    return RecipeSchema().dump(random_recipe)
+    return RecipeSchema().dump(random_recipe_by_user)
 
 @recipes_bp.route("/public/random")
 def random_recipe():
