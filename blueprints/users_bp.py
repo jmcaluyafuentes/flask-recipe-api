@@ -5,10 +5,10 @@ This module is a blueprint for routes to manage user records.
 from datetime import timedelta
 from flask import request
 from flask import Blueprint
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from init import db, bcrypt
-from auth import admin_only
+from auth import admin_only, current_user_is_admin
 from models.user import User, UserSchema
 
 # Define a blueprint for user-related routes
@@ -84,51 +84,41 @@ def one_user(user_id):
     return UserSchema(exclude=['password']).dump(user)
 
 @users_bp.route("/register", methods=["POST"])
-def create_user():
+@jwt_required()
+def register_user():
     """
-    This endpoint handles POST requests to create a new user. It expects the request 
-    body to contain the user's email, password, name, and an optional is_admin flag.
-    The password is hashed before storing it in the database for security reasons.
+    This endpoint handles POST requests to create a new user by an admin. 
+    It expects the request body to contain the user's email, password, name, 
+    and an optional is_admin flag. The password is hashed before storing it 
+    in the database for security reasons.
 
     Returns:
         tuple: A tuple containing the serialized user data and an HTTP status code.
             - dict: The serialized user data.
             - int: HTTP status code 201 indicating that the user was successfully created.
-
-    Raises:
-        ValidationError: If the input data does not conform to the expected schema.
-        KeyError: If there is a missing field.
     """
-    try:
-        # Load the request data and validate it against the UserSchema
-        user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
+    if not current_user_is_admin():
+        return {"error": "Only admin can register a user"}, 403
 
-        # Create a new user instance
+    try:
+        user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
         user = User(
             email=user_info['email'],
             password=bcrypt.generate_password_hash(user_info['password']).decode('utf-8'),
             name=user_info['name'],
             is_admin=user_info.get('is_admin', False)
         )
-
-        # Add the new user to the session and commit it to the database
         db.session.add(user)
         db.session.commit()
-
-        # Return the serialized recipe data and a 201 Created status code
         return UserSchema(exclude=['password']).dump(user), 201
     
-    except IntegrityError as _:
-        # Rollback the session to undo any partial changes due to an integrity constraint violation
+    except IntegrityError:
         db.session.rollback()
-        # Return an error message indicating that the email address already exists with a 400 Bad Request status code
         return {"error": "The email address already exists. Please choose a different email address."}, 400
 
-    except SQLAlchemyError as _:
-        # Rollback the session to undo any partial changes due to a general SQLAlchemy error
+    except SQLAlchemyError:
         db.session.rollback()
-        # Return a generic error message indicating a database error with a 500 Internal Server Error status code
-        return {"error": "An error occurred while creating the recipe."}, 500
+        return {"error": "An error occurred while creating the user."}, 500
 
 @users_bp.route("/<user_id>", methods=["PUT", "PATCH"])
 def update_user(user_id):
