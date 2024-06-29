@@ -37,7 +37,7 @@ def all_public_recipes():
 @jwt_required()  # Ensure only authenticated users can access this route
 def get_all_recipes():
     """
-    Retrieve all recipes from the database.
+    Retrieve all recipes (both public and private) from the database. Only the admin can access this resource.
 
     Returns:
         list of dict: A JSON representation of all recipes.
@@ -97,67 +97,60 @@ def get_user_recipes():
     # Return the serialized recipe
     return RecipeSchema(many=True).dump(recipes), 200
 
-@recipes_bp.route('/public/category/<int:category_id>')
-def recipes_by_category(category_id):
-    """
-    Retrieve all recipes associated with a specific category.
-
-    Args:
-        category_id (int): The ID of the category to fetch recipes for.
-
-    Returns:
-        list of dict: A JSON representation of recipes associated with the category.
-    """
-    # Query the database to fetch the category by its ID
-    category = db.session.query(Category).get(category_id)
-
-    if not category:
-        return {"error": "Category not found"}, 404
-
-    # Retrieve public recipes associated with the category
-    recipes = Recipe.query.filter_by(category_id=category_id, is_public=True).all()
-
-    # Serialize the recipe record to JSON format
-    return RecipeSchema(many=True).dump(recipes)
-
 @recipes_bp.route('/public/filter')
 def filter_recipes():
     """
-    Endpoint to filter recipes based on recipe name, preparation time, ingredient name, and cuisine name.
+    Endpoint to filter public recipes based on title, preparation time, ingredient name, and cuisine name.
 
     Query Parameters:
         - title: Title or name of the recipe (string)
-        - prep_time: Maximum preparation time in minutes (integer)
+        - prep_time: Exact preparation time in minutes (integer)
         - ingredient_name: Name of the ingredient (string)
         - cuisine_name: Name of the cuisine category (string)
 
     Returns:
-        list: A JSON representation of filtered recipes.
+        list: A JSON representation of filtered recipes or an error if no match is found for any parameter.
     """
+    # Define valid parameters
+    valid_params = {'title', 'prep_time', 'ingredient_name', 'cuisine_name'}
+    
     # Retrieve query parameters
-    title = request.args.get('title')
-    prep_time = request.args.get('prep_time')
-    ingredient_name = request.args.get('ingredient_name')
-    cuisine_name = request.args.get('cuisine_name')
+    query_params = request.args.to_dict()
+    
+    # Check for invalid parameters
+    invalid_params = [param for param in query_params if param not in valid_params]
+    if invalid_params:
+        return {"error": f"Invalid parameter(s): {', '.join(invalid_params)}"}, 400
 
-    # Query public recipes
+    # Extract valid query parameters
+    title = query_params.get('title')
+    prep_time = query_params.get('prep_time')
+    ingredient_name = query_params.get('ingredient_name')
+    cuisine_name = query_params.get('cuisine_name')
+
+    # Base query for public recipes
     query = Recipe.query.filter_by(is_public=True)
 
-    # Apply filters based on query parameters
+    # Apply filters based on valid query parameters
     if title:
         query = query.filter(Recipe.title.ilike(f"%{title}%"))
-
     if prep_time:
-        query = query.filter(Recipe.preparation_time <= int(prep_time))
-
+        try:
+            prep_time = int(prep_time)
+            query = query.filter(Recipe.preparation_time == prep_time)
+        except ValueError:
+            return {"error": "Invalid preparation time. Must be a valid integer."}, 400
     if ingredient_name:
         query = query.join(Recipe.ingredients).filter(Ingredient.name.ilike(f"%{ingredient_name}%"))
-
     if cuisine_name:
         query = query.join(Recipe.category).filter(Category.cuisine_name.ilike(f"%{cuisine_name}%"))
 
     # Execute the query to fetch filtered recipes
     filtered_recipes = query.all()
+
+    # Check if any recipes were found
+    if not filtered_recipes:
+        return {"error": "No recipes found matching the specified criteria."}, 404
 
     # Serialize the filtered recipes
     return RecipeSchema(many=True).dump(filtered_recipes)
