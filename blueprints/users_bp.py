@@ -5,7 +5,7 @@ This module is a blueprint for routes to manage user records.
 from datetime import timedelta
 from flask import request
 from flask import Blueprint
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from init import db, bcrypt
 from auth import admin_only, current_user_is_admin
@@ -49,27 +49,32 @@ def login():
         return {'error': 'Invalid email or password'}, 401
 
 @users_bp.route("/")
-@admin_only
-def all_users():
+@jwt_required()  # Ensure that the request is authenticated using JWT
+def get_all_users():
     """
-    Route to fetch all users from the database.
-    It is restricted to admin users only.
+    Route to fetch all users from the database. Accessible only by admin users.
 
     Returns:
         list of dict: A JSON representation of all user records.
     """
-    # Query the database for all user records
+    # Check if the current user is an admin
+    if not current_user_is_admin():
+        # If not an admin, return a 403 Forbidden error
+        return {"error": "Only admin can access this resource"}, 403
+
+    # Create a select statement to fetch all users
     stmt = db.select(User)
-    # Execute the query and fetch all users
+    # Execute the query and fetch all user records
     users = db.session.scalars(stmt).all()
 
-    # Return the serialized users data
+    # Return the serialized user data (excluding the password)
     return UserSchema(many=True, exclude=['password']).dump(users)
 
 @users_bp.route("/<int:user_id>")
-def one_user(user_id):
+@jwt_required()  # Ensure that the request is authenticated using JWT
+def get_one_user(user_id):
     """
-    Retrieve a user record by its ID.
+    Retrieve a user record by its ID. Accessible by admin or the user themselves.
 
     Args:
         user_id (int): The ID of the user to retrieve.
@@ -77,10 +82,18 @@ def one_user(user_id):
     Returns:
         dict: A JSON representation of the user record.
     """
+    # Get the ID of the current user from the JWT
+    current_user_id = get_jwt_identity()
+
     # Fetch the user with the specified ID, or return a 404 error if not found
     user = db.get_or_404(User, user_id)
 
-    # Return the serialized user data
+    # Check if the current user is not the user themselves and not an admin
+    if current_user_id != user.user_id and not current_user_is_admin():
+        # If the current user is not authorized, return a 403 Forbidden error
+        return {"error": "You are not authorized to access this resource"}, 403
+
+    # Return the serialized user data (excluding the password)
     return UserSchema(exclude=['password']).dump(user)
 
 @users_bp.route("/register", methods=["POST"])
@@ -97,37 +110,46 @@ def register_user():
             - dict: The serialized user data.
             - int: HTTP status code 201 indicating that the user was successfully created.
     """
+    # Check if the current user is an admin
     if not current_user_is_admin():
+        # If not an admin, return a 403 Forbidden error
         return {"error": "Only admin can register a user"}, 403
 
     try:
+        # Load and validate the incoming user data against the UserSchema
         user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
+        # Create a new User instance with the provided data
         user = User(
             email=user_info['email'],
             password=bcrypt.generate_password_hash(user_info['password']).decode('utf-8'),
             name=user_info['name'],
             is_admin=user_info.get('is_admin', False)
         )
+        # Add the new user to the database session
         db.session.add(user)
+        # Commit the session to save the new user to the database
         db.session.commit()
+        # Return the serialized user data (excluding the password) and a 201 Created status code
         return UserSchema(exclude=['password']).dump(user), 201
     
+
     except IntegrityError:
+        # Rollback the session if there is an integrity error (e.g., email already exists)
         db.session.rollback()
+        # Return a 400 Bad Request error with a message indicating the issue
         return {"error": "The email address already exists. Please choose a different email address."}, 400
 
     except SQLAlchemyError:
+        # Rollback the session if there is a general SQLAlchemy error other than the IntegrityError
         db.session.rollback()
+        # Return a 500 Internal Server Error with a generic error message
         return {"error": "An error occurred while creating the user."}, 500
 
-@users_bp.route("/<user_id>", methods=["PUT", "PATCH"])
+@users_bp.route("/<int:user_id>", methods=["PUT", "PATCH"])
+@jwt_required()  # Ensure that the request is authenticated using JWT
 def update_user(user_id):
     """
-    Endpoint to update an existing user.
-
-    This function handles PUT and PATCH requests to update an existing user by their ID.
-    It expects the request body to contain one or more fields of the user that need to be updated,
-    including email, password, name, and is_admin flag. Any fields not provided in the request will remain unchanged.
+    Endpoint to update an existing user. Accessible by admin or the user themselves.
 
     Args:
         user_id (int): The ID of the user to be updated.
@@ -136,37 +158,47 @@ def update_user(user_id):
         tuple: A tuple containing the serialized updated user data and an HTTP status code.
             - dict: The serialized updated user data.
             - int: HTTP status code 200 indicating that the user was successfully updated.
-
-    Raises:
-        ValidationError: If the input data does not conform to the expected schema.
-        NotFound: If the user with the given ID does not exist.
     """
+    # Get the ID of the current user from the JWT
+    current_user_id = get_jwt_identity()
+
+    # Fetch the user with the specified ID, or return a 404 error if not found
+    user = db.get_or_404(User, user_id)
+
+    # Check if the current user is not the user themselves and not an admin
+    if current_user_id != user.user_id and not current_user_is_admin():
+        # If the current user is not authorized, return a 403 Forbidden error
+        return {"error": "You are not authorized to access this resource"}, 403
+
     try:
-        # Fetch the user with the specified ID, or return a 404 error if not found
-        user = db.get_or_404(User, user_id)
         # Load the request data and validate it against the UserSchema
         user_info = UserSchema(only=['email', 'password', 'name', 'is_admin']).load(request.json, unknown='exclude')
-        
-        # Update the recipe fields if new values are provided, otherwise keep the existing values
-        user.email = user_info.get('email', user.email)
-        user.password = user_info.get(bcrypt.generate_password_hash('password').decode('utf-8'), user.password)
-        user.name = user_info.get('name', user.name)
-        user.admin = user_info.get('is_admin', user.is_admin)
 
+        # Update the user fields if new values are provided, otherwise keep the existing values
+        user.email = user_info.get('email', user.email)
+        if 'password' in user_info:
+            user.password = bcrypt.generate_password_hash(user_info['password']).decode('utf-8')
+        user.name = user_info.get('name', user.name)
+        
+        # Only allow admins to update the is_admin field
+        if current_user_is_admin():
+            user.is_admin = user_info.get('is_admin', user.is_admin)
+        
         # Commit the updated user to the database
         db.session.commit()
 
         # Return the serialized updated user data
         return UserSchema().dump(user)
-
-    except IntegrityError as _:
+    
+    except IntegrityError:
         # Rollback the session to undo any partial changes due to an integrity constraint violation
         db.session.rollback()
         # Return an error message indicating that the email address already exists with a 400 Bad Request status code
         return {"error": "The email address already exists. Please choose a different email address."}, 400
 
-    except SQLAlchemyError as _:
+    except SQLAlchemyError:
         # Rollback the session to undo any partial changes due to a general SQLAlchemy error
         db.session.rollback()
         # Return a generic error message indicating a database error with a 500 Internal Server Error status code
-        return {"error": "An error occurred while creating the recipe."}, 500
+        return {"error": "An error occurred while updating the user."}, 500
+
