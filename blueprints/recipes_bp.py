@@ -4,7 +4,7 @@ This module is a blueprint for routes to manage recipe records.
 
 from datetime import date
 import random
-from flask import Blueprint, request
+from flask import Blueprint, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
@@ -120,11 +120,11 @@ def recipes_by_category(category_id):
     # Serialize the recipe record to JSON format
     return RecipeSchema(many=True).dump(recipes)
 
-@recipes_bp.route('/category/<int:category_id>/user/<int:user_id>')
+@recipes_bp.route('/user/<int:user_id>/category/<int:category_id>')
 @jwt_required()
-def recipes_by_category_and_user(category_id, user_id):
+def recipes_by_user_and_category(user_id, category_id):
     """
-    Retrieve recipes by category filtered by the user who created them.
+    Retrieve recipes by the user who created them filtered by category.
 
     Args:
         category_id (int): The ID of the category to fetch recipes for.
@@ -152,7 +152,36 @@ def recipes_by_category_and_user(category_id, user_id):
     # Serialize the recipe record to JSON format
     return RecipeSchema(many=True).dump(recipes)
 
-@recipes_bp.route("/random")
+@recipes_bp.route('/user/random')
+@jwt_required()
+def recipes_by_user_and_random():
+    """
+    Endpoint to fetch a randomly selected recipe from both private recipes created by the user and the public recipes.
+
+    Returns:
+        dict: A JSON representation of the randomly selected recipe.
+    """
+    current_user_id = get_jwt_identity()
+
+    # Query private recipes of the current user
+    private_recipes = Recipe.query.filter_by(user_id=current_user_id).all()
+
+    # Query public recipes
+    public_recipes = Recipe.query.filter_by(is_public=True).all()
+
+    # Combine private and public recipes
+    all_recipes = private_recipes + public_recipes
+
+    if not all_recipes:
+        abort(404, description="No recipes found.")
+
+    # Select a random recipe from all_recipes
+    random_recipe = random.choice(all_recipes)
+
+    # Serialize the selected recipe
+    return RecipeSchema().dump(random_recipe)
+
+@recipes_bp.route("/public/random")
 def random_recipe():
     """
     Retrieve a random public recipe from the database.

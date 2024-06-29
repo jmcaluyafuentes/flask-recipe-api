@@ -43,14 +43,14 @@ def db_create():
             is_admin=True
         ),
         User(
-            email='user1@example.com',
+            email='user_1_@example.com',
             password=bcrypt.generate_password_hash('password_user1').decode('utf-8'),
-            name='John'
+            name='User_1'
         ),
         User(
-            email='user2@example.com',
+            email='user_2_@example.com',
             password=bcrypt.generate_password_hash('password_user2').decode('utf-8'),
-            name='John Mark'
+            name='User_2'
         )
     ]
 
@@ -91,7 +91,7 @@ def db_create():
         ),
         Recipe(
             title='Menudo',
-            description= 'A hearty stew made with diced pork or beef, potatoes, carrots, and bell peppers in a tomato-based sauce.',
+            description= 'A hearty stew made with pork.',
             date_created=date.today(),
             user=users[2],
             category=categories[2],
@@ -196,10 +196,3 @@ def db_create():
     # Commit the session to persist changes to the database
     db.session.commit()
 
-    # saved_recipes = [
-    #     SavedRecipe(user_id=user1.id, recipe_id=recipe1.id, notes='Try this with extra cheese.'),
-    #     SavedRecipe(user_id=user2.id, recipe_id=recipe2.id, notes='Add more spice for a kick.')
-    # ]
-
-    # db.session.add_all(saved_recipes)
-    # db.session.commit()

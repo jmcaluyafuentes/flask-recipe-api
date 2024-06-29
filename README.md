@@ -19,31 +19,30 @@ This API web server, named Flask Recipe API, is designed to manage a recipe appl
 1. User Management
 
     - Admin users can add new users to the platform.
+    - Admin users can update and delete users.
     - User authentication and authorization to ensure secure access to the API endpoints.
 
 2. Recipe Management
 
     - Users can create, update, and delete their own recipes.
     - Recipes can be marked as public or private.
-    - Admins have the ability to delete any public recipe (e.g., if it did not comply with the guidelines).
+    - Admins have the ability to delete a recipe (e.g., if it did not comply with the guidelines).
 
 3. Recipe Discovery
 
     - Users can browse public recipes.
-    - Users can save public recipes to their personal accounts for easy access.
     - Users can filter recipes based on various criteria like cuisine, preparation time, etc.
     - Users can get a random recipe suggestion if unsure of what to cook.
 
 4. Recipe Details
 
     - Recipes consist of step-by-step instructions that are ordered to ensure clarity.
-    - Users can leave personal notes on saved recipes for future reference.
 
 ## Requirements
 
 ### R1: Explain the problem that this app will solve, and explain how this app solves or addresses the problem.
 
-In our busy lives, many people, including my family, often struggle in planning meals planning and managing recipes. One of the problems that this app solves is the lack of organization in managing recipes. The abundance of recipes from diverse sources and blogs on the internet often overwhelms and confuses us when trying to find cooking ideas. The app offers user accounts, allowing individuals to consolidate and manage their recipes in a single, centralized location. This feature enables users to conveniently access their preferred recipes whenever they need them.
+In our busy lives, many people, including my family, often struggle in planning meals and managing recipes. One of the problems that this app solves is the lack of organization in managing recipes. The abundance of recipes from diverse sources and blogs on the internet often overwhelms and presents challenges in organizing them (Laura 2010). The app offers user accounts, allowing individuals to consolidate and manage their recipes in a single, centralized location. This feature enables users to conveniently access their preferred recipes whenever they need them.
 
 Meal planning is also a challenge that this app aims to solve. Deciding what to cook, especially when busy, can be quite time-consuming. To solve this problem, the app includes a feature that enables users to randomly select a recipe from their collection or from publicly available recipes. This simplifies the decision-making process, making it easier for users to decide on their next meal quickly. Additionally, users have the option to save public recipes to their personal accounts, allowing them to build a curated collection of meals that align with their preferences and support their meal planning efforts.
 
@@ -141,3 +140,7 @@ If authentication fails (invalid email or password):
 
 1. Response data: JSON object containing an error message describing the reason for failure.
 2. Status code: 401 Unauthorized
+
+Reference List
+
+Laura, 2010, *How to Organize Recipes You Find Online*, viewed 27 June 2024, https://orgjunkie.com/2010/07/how-to-organize-recipes-you-find-online.html
