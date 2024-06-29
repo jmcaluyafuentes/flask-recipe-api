@@ -90,8 +90,22 @@ def db_create():
             category=categories[1],
         ),
         Recipe(
+            title='Chiles Rellenos',
+            description='Roasted poblano peppers stuffed with cheese',
+            date_created=date.today(),
+            user=users[1],
+            category=categories[1],
+        ),
+        Recipe(
             title='Menudo',
             description= 'A hearty stew made with pork.',
+            date_created=date.today(),
+            user=users[2],
+            category=categories[2],
+        ),
+        Recipe(
+            title='Arroz Caldo',
+            description= 'Rice porridge flavored with ginger and garlic.',
             date_created=date.today(),
             user=users[2],
             category=categories[2],
@@ -105,7 +119,7 @@ def db_create():
     db.session.commit()
 
     ingredients = [
-        # Ingredients of the first recipe
+        # Ingredients of the 1st recipe
         Ingredient(
             name='Spaghetti',
             quantity='200g',
@@ -122,7 +136,7 @@ def db_create():
             recipe=recipes[0],
         ),
 
-        # Ingredients of the second recipe
+        # Ingredients of the 2nd recipe
         Ingredient(
             name='Tortillas',
             recipe=recipes[1]
@@ -133,21 +147,45 @@ def db_create():
             recipe=recipes[1]
         ),
 
-        # Ingredients of the third recipe
+        # Ingredients of the 3rd recipe
+        Ingredient(
+            name='Peppers',
+            quantity='6',
+            recipe=recipes[2]
+        ),
+        Ingredient(
+            name='Cheese',
+            quantity='1 1/2',
+            recipe=recipes[2]
+        ),
+
+        # Ingredients of the 4th recipe
         Ingredient(
             name='Pork',
             quantity='1 kg',
-            recipe=recipes[2]
+            recipe=recipes[3]
         ),
         Ingredient(
             name='Potatoes',
             quantity='2',
-            recipe=recipes[2]
+            recipe=recipes[3]
+        ),
+
+        # Ingredients of the 5th recipe
+        Ingredient(
+            name='Glutinous rice',
+            quantity='1 cup',
+            recipe=recipes[4]
+        ),
+        Ingredient(
+            name='Chicken',
+            quantity='1/2 kilo',
+            recipe=recipes[4]
         )
     ]
 
     instructions = [
-        # Instructions of the first recipe
+        # Instructions of the 1st recipe
         Instruction(
             step_number=1,
             task='Boil the spaghetti.',
@@ -164,7 +202,7 @@ def db_create():
             recipe=recipes[0]
         ),
 
-        # Instructions of the second recipe
+        # Instructions of the 2nd recipe
         Instruction(
             step_number=1,
             task='Cook the chicken.',
@@ -176,16 +214,40 @@ def db_create():
             recipe=recipes[1]
         ),
 
-        # Instructions of the third recipe
+        # Instructions of the 3rd recipe
         Instruction(
             step_number=1,
-            task='Sauté Aromatics.',
+            task='Roast the Peppers.',
             recipe=recipes[2]
         ),
         Instruction(
             step_number=2,
-            task='Cook the Pork.',
+            task='Make the Tomato Sauce.',
             recipe=recipes[2]
+        ),
+
+        # Instructions of the 4th recipe
+        Instruction(
+            step_number=1,
+            task='Marinate the Pork.',
+            recipe=recipes[3]
+        ),
+        Instruction(
+            step_number=2,
+            task='Cook the Pork.',
+            recipe=recipes[3]
+        ),
+
+        # Instructions of the 5th recipe
+        Instruction(
+            step_number=1,
+            task='Sauté Aromatics.',
+            recipe=recipes[4]
+        ),
+        Instruction(
+            step_number=2,
+            task='Cook the Chicken.',
+            recipe=recipes[4]
         )
     ]
 
@@ -195,4 +257,3 @@ def db_create():
 
     # Commit the session to persist changes to the database
     db.session.commit()
-
