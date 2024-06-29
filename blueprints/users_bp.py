@@ -8,8 +8,9 @@ from flask import Blueprint
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from init import db, bcrypt
-from auth import admin_only, current_user_is_admin
+from auth import current_user_is_admin
 from models.user import User, UserSchema
+from models.recipe import Recipe
 
 # Define a blueprint for user-related routes
 users_bp = Blueprint('users', __name__, url_prefix='/users')
@@ -202,3 +203,52 @@ def update_user(user_id):
         # Return a generic error message indicating a database error with a 500 Internal Server Error status code
         return {"error": "An error occurred while updating the user."}, 500
 
+@users_bp.route("/<int:user_id>", methods=["DELETE"])
+@jwt_required()  # Ensure that the request is authenticated using JWT
+def delete_user(user_id):
+    """
+    Endpoint to delete an existing user. Accessible by admin or the user themselves.
+
+    This function deletes a user and all their associated recipes from the database.
+    It ensures that the action is authorized by allowing only the user themselves or an admin 
+    to perform the deletion.
+
+    Args:
+        user_id (int): The ID of the user to be deleted.
+
+    Returns:
+        dict: An empty dictionary indicating successful deletion.
+            - {}: A response indicating that the user and their recipes were successfully deleted.
+            - int: HTTP status code 200 indicating success.
+            - int: HTTP status code 403 if the user is not authorized.
+            - int: HTTP status code 500 if an error occurred while deleting the user or their recipes.
+    """
+    # Get the ID of the current user from the JWT
+    current_user_id = get_jwt_identity()
+
+    # Fetch the user with the specified ID, or return a 404 error if not found
+    user = db.get_or_404(User, user_id)
+
+    # Check if the current user is not the user themselves and not an admin
+    if current_user_id != user.user_id and not current_user_is_admin():
+        # If the current user is not authorized, return a 403 Forbidden error
+        return {"error": "You are not authorized to access this resource."}, 403
+
+    try:
+        # Fetch and delete all recipes associated with the user
+        recipes = Recipe.query.filter_by(user_id=user.user_id).all()
+        for recipe in recipes:
+            db.session.delete(recipe)
+        
+        # Delete the user from the database
+        db.session.delete(user)
+        # Commit the changes to the database
+        db.session.commit()
+        # Return an empty dictionary to signify successful deletion
+        return {}, 200
+    
+    except SQLAlchemyError:
+        # Rollback the session to undo any partial changes due to a general SQLAlchemy error
+        db.session.rollback()
+        # Return a generic error message indicating a database error with a 500 Internal Server Error status code
+        return {"error": "An error occurred while deleting the user."}, 500
