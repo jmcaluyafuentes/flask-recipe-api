@@ -4,9 +4,10 @@ This module is a blueprint for routes to manage recipe records.
 
 from datetime import date
 import random
-from flask import Blueprint, request, abort
+from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 from init import db
 from models.recipe import Recipe, RecipeSchema
 from models.ingredient import Ingredient
@@ -388,33 +389,48 @@ def update_recipe(recipe_id):
     # Return the serialized updated recipe data
     return RecipeSchema().dump(recipe)
 
-@recipes_bp.route("/<recipe_id>", methods=["DELETE"])
+@recipes_bp.route("/<int:recipe_id>", methods=["DELETE"])
 @jwt_required()
 def delete_recipe(recipe_id):
     """
-    This endpoint handles DELETE requests to remove a recipe from the database 
-    based on its unique identifier (ID). If the recipe with the specified ID exists, 
-    it is deleted from the database. If not found, a 404 error is returned.
+    Endpoint to delete an existing recipe. Accessible by admin or the user who created the recipe.
 
     Args:
-        recipe_id (int): The ID of the recipe to be updated.
+        recipe_id (int): The ID of the recipe to be deleted.
 
     Returns:
-        dict: An empty dictionary indicating successful deletion with 200 status code.
-
-    Raises:
-        NotFound: If the recipe with the given ID does not exist in the database.
+        dict: A JSON response indicating the outcome of the deletion.
+            - {}: A response indicating that the recipe was successfully deleted.
+            - int: HTTP status code 200 indicating success.
+            - int: HTTP status code 403 if the user is not authorized.
+            - int: HTTP status code 404 if the recipe does not exist.
+            - int: HTTP status code 500 if an error occurred while deleting the recipe.
     """
-    # Fetch the recipe with the specified ID, or return a 404 error if not found
-    recipe = db.get_or_404(Recipe, recipe_id)
+    try:
+        # Fetch the recipe with the specified ID, or raise a NoResultFound exception if not found
+        recipe = Recipe.query.filter_by(recipe_id=recipe_id).one()
 
-    # Call the function that check if the JWT user is the author of the given recipe
-    authorize_owner(recipe)
+        # Get the ID of the current user from the JWT
+        current_user_id = get_jwt_identity()
 
-    # Delete the recipe from the database
-    db.session.delete(recipe)
-    db.session.commit()
+        # Check if the current user is the author of the recipe or an admin
+        if current_user_id != recipe.user_id and not current_user_is_admin():
+            return {"error": "You are not authorized to delete this recipe."}, 403
 
-    # Return an empty dictionary to signify successful deletion.
-    return {}
+        # Delete the recipe from the database
+        db.session.delete(recipe)
+        db.session.commit()
+
+        # Return an empty dictionary to signify successful deletion
+        return {}, 200
+
+    except NoResultFound:
+        # Handle case where the recipe with the specified ID does not exist
+        return {"error": "Recipe not found."}, 404
+
+    except SQLAlchemyError:
+        # Rollback the session to undo any partial changes due to a general SQLAlchemy error
+        db.session.rollback()
+        # Return a generic error message indicating a database error with a 500 Internal Server Error status code
+        return {"error": "An error occurred while deleting the recipe."}, 500
 
