@@ -7,6 +7,7 @@ from flask import request
 from flask import Blueprint
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 from init import db, bcrypt
 from auth import current_user_is_admin
 from models.user import User, UserSchema
@@ -189,7 +190,7 @@ def update_user(user_id):
         db.session.commit()
 
         # Return the serialized updated user data
-        return UserSchema().dump(user)
+        return UserSchema(exclude=['password']).dump(user)
     
     except IntegrityError:
         # Rollback the session to undo any partial changes due to an integrity constraint violation
@@ -246,6 +247,10 @@ def delete_user(user_id):
         db.session.commit()
         # Return an empty dictionary to signify successful deletion
         return {}, 200
+    
+    except NoResultFound:
+        # Handle case where the user with the specified ID does not exist
+        return {"error": "Recipe not found."}, 404
     
     except SQLAlchemyError:
         # Rollback the session to undo any partial changes due to a general SQLAlchemy error

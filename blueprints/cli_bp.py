@@ -257,3 +257,5 @@ def db_create():
 
     # Commit the session to persist changes to the database
     db.session.commit()
+
+

@@ -18,9 +18,11 @@ def all_categories():
         list: A JSON representation of all category records.
     """
     # Query the database for all category records
-    stmt = db.select(Category)
-    # Execute the query and fetch all categories
-    categories = db.session.scalars(stmt).all()
+    categories = Category.query.all()
+
+    # Check if categories are found
+    if not categories:
+        return {"error": "No categories found."}, 404
 
     # Return the serialized categories
     return CategorySchema(many=True).dump(categories)
