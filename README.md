@@ -860,7 +860,7 @@ Description: Retrieves a randomly selected recipe from the recipes owned by the 
 
 404 Not Found: User with the specified user_id not found, or no recipes found for the user.
 
-![Bruno app snapshot](./markdown-images/endpoints/.png)
+![Bruno app snapshot](./markdown-images/endpoints/recipes_user-random.png)
 
 ### 10. Route: /recipes/{recipe_id}
 
@@ -964,7 +964,7 @@ Description: Retrieves a randomly selected recipe from the public recipes in the
 
 404 Not Found: No public recipes are available.
 
-![Bruno app snapshot](./markdown-images/endpoints/.png)
+![Bruno app snapshot](./markdown-images/endpoints/recipes_public-random.png)
 
 ### 14. Route: /categories
 
