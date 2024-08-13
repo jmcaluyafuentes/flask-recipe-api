@@ -11,6 +11,7 @@ Student: John Fuentes
 # Import statements
 from marshmallow.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
+from flask import render_template_string
 from init import app
 from blueprints.cli_bp import db_commands
 from blueprints.users_bp import users_bp
@@ -32,7 +33,15 @@ def index():
     Returns:
         str: HTML content displaying a heading for the index page.
     """
-    return '<h1>Flask Recipe API</h1>'
+
+    html_content = '''
+        <h1>Flask Recipe API</h1>
+        <h3>Term 2 Assignment</h3>
+        <h3>Coder Academy, Diploma of IT</h3>
+        <p>For detailed documentation on available endpoints, visit the <a href="https://github.com/jmcaluyafuentes/flask-recipe-api/tree/master">GitHub repository</a>.</p>
+        <p>Use API clients like Postman or Bruno to test the endpoints.</p>
+    '''
+    return render_template_string(html_content)
 
 @app.errorhandler(404)
 def not_found(_):
