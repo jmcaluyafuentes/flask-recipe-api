@@ -4,9 +4,33 @@ Term 2, Assignment 2
 Diploma of IT - Web Development  
 Coder Academy
 
-## Github Repository
+## Table of Contents
 
-https://github.com/jmcaluyafuentes/flask-recipe-api
+1. [Deployed API](#deployed-api)
+2. [Purpose of API](#purpose)
+3. [Installation and Set Up Instructions](#installation-and-set-up-instructions)
+4. [Requirements](#requirements)  
+    4.1 [Problem statement](#r1-explain-the-problem-that-this-app-will-solve-and-explain-how-this-app-solves-or-addresses-the-problem)  
+    4.2 [Project management](#r2-describe-the-way-tasks-are-allocated-and-tracked-in-your-project)  
+    4.3 [Packages and dependencies](#r3-list-and-explain-the-third-party-services-packages-and-dependencies-used-in-this-app)  
+    4.4 [Database benefits and drawbacks](#r4-explain-the-benefits-and-drawbacks-of-this-apps-underlying-database-system)  
+    4.5 [Functionality of ORM in this app](#r5-explain-the-features-purpose-and-functionalities-of-the-object-relational-mapping-system-orm-used-in-this-app)  
+    4.6 [Entity Relationship Diagram](#r6-design-an-entity-relationship-diagram-erd-for-this-apps-database-and-explain-how-the-relations-between-the-diagrammed-models-will-aid-the-database-design)  
+    4.7 [Models and their relationships](#r7-explain-the-implemented-models-and-their-relationships-including-how-the-relationships-aid-the-database-implementation)  
+    4.8 [Endpoints](#r8-explain-how-to-use-this-applications-api-endpoints-each-endpoint-should-be-explained-including-the-following-data-for-each-endpoint)
+
+
+
+
+
+
+
+
+
+
+## Deployed API
+
+You can access the deployed API at: [https://flask-recipe-api.onrender.com/](https://flask-recipe-api.onrender.com/)
 
 ## Purpose
 
@@ -116,9 +140,11 @@ This API web server is an assignment for Term 2 in the Coder Academy Diploma of 
 
 2. Access the API in your browser at http://localhost:5000.
 
+[Back to Top](#)
+
 ## Requirements
 
-### R1: Explain the problem that this app will solve, and explain how this app solves or addresses the problem.
+### R1: Explain the problem that this app will solve and explain how this app solves or addresses the problem
 
 In our busy lives, many people, including my family, often struggle in planning meals and managing recipes. One of the problems that this app solves is the lack of organization in managing recipes. The abundance of recipes from diverse sources and blogs on the internet often overwhelms and presents challenges in organizing them (Laura 2010). The app offers user accounts, allowing individuals to consolidate and manage their recipes in a single, centralized location. This feature enables users to conveniently access their preferred recipes whenever they need them.
 
@@ -128,7 +154,9 @@ Customized searching is helpful for users with specific dietary preferences or t
 
 To maintain the integrity of the platform, this app includes several administrative features. Admins can add users to the platform to ensure a controlled and secure user base. The admins have the authority to delete public recipes that do not comply with the guidelines. Users also have control over their accounts, with the ability to create, update, and delete their own recipes.
 
-### R2: Describe the way tasks are allocated and tracked in your project.
+[Back to Top](#)
+
+### R2: Describe the way tasks are allocated and tracked in your project
 
 I used Trello in managing my tasks due to its good visual, straightforward and user-friendly components.
 
@@ -174,7 +202,9 @@ I also used Git for source control and regularly pushed my changes to a GitHub r
 
 ![Github regular commits](./markdown-images/github-2.png)
 
-### R3: List and explain the third-party services, packages and dependencies used in this app.
+[Back to Top](#)
+
+### R3: List and explain the third-party services, packages and dependencies used in this app
 
 * Flask - it is a lightweight web application framework in Python. It provides tools, libraries, and patterns to build web applications. Flask provides the core framework for routing, request handling, and response generation in your application.
 
@@ -202,7 +232,9 @@ I also used Git for source control and regularly pushed my changes to a GitHub r
 
 * Random - This module implements pseudo-random number generators for various distributions. It is used in the Recipe API to generate random recipe.
 
-### R4: Explain the benefits and drawbacks of this app’s underlying database system.
+[Back to Top](#)
+
+### R4: Explain the benefits and drawbacks of this app’s underlying database system
 
 The Recipe API uses PostgreSQL as its database system and it is interface with SQLAlchemy and psycopg2-binary. Below are the benefits and drawbacks of using PostgreSQL for this application:
 
@@ -227,6 +259,8 @@ The Recipe API uses PostgreSQL as its database system and it is interface with S
 * Resource Intensive - PostgreSQL can be resource-intensive in terms of memory and CPU usage, especially under heavy loads or when performing complex operations. Ensuring the underlying infrastructure can support PostgreSQL's requirements is important for maintaining performance and stability.
 
 * Configuration Complexity - Optimizing PostgreSQL for specific use cases often requires fine-tuning various configuration parameters. This process can be complex and requires a deep understanding of the database's internals and the application's workload.
+
+[Back to Top](#)
 
 ### R5: Explain the features, purpose and functionalities of the object-relational mapping system (ORM) used in this app.
 
@@ -287,6 +321,8 @@ Functionality: Perform complex queries without writing raw SQL.
 ![Models](./markdown-images/images-models/query-recipes-user.png)
 
 In this example, a query is performed to retrieve the recipe by the user's ID. The `db.get_or_404(Recipe, recipe_id)` will retrieve the recipe with the specified ID or it will return a 404 error if the recipe is not found.
+
+[Back to Top](#)
 
 ### R6: Design an entity relationship diagram (ERD) for this app’s database, and explain how the relations between the diagrammed models will aid the database design.
 
@@ -473,6 +509,8 @@ Instructions:
 
 ![ERD design](./markdown-images/erd/ERD-recipe-api.png)
 
+[Back to Top](#)
+
 ### R7: Explain the implemented models and their relationships, including how the relationships aid the database implementation.
 
 #### This should focus on the database implementation AFTER coding has begun, eg. during the project development phase.
@@ -584,6 +622,8 @@ This Flask route handler (delete_recipe) is designed to delete a recipe from the
 * The `db.session.delete(recipe)` marks the recipe object for deletion within the current session.
 
 * The `db.session.commit()` commits the transaction to permanently delete the recipe from the database. Upon successful deletion, returns an empty dictionary {} with an HTTP 200 OK status code. If unauthorized, returns a 403 Forbidden error with an error message.
+
+[Back to Top](#)
 
 ### R8: Explain how to use this application’s API endpoints. Each endpoint should be explained, including the following data for each endpoint:
 
@@ -1162,6 +1202,8 @@ Description: Deletes a specific recipe from the database. Accessible by the admi
 ![Bruno app snapshot](./markdown-images/endpoints/recipes_delete-Not-Found.png)
 
 500 Internal Server Error: General server error during user deletion.
+
+[Back to Top](#)
 
 ### Reference List
 
