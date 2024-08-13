@@ -39,7 +39,3 @@ bcrypt = Bcrypt(app)
 
 # Initialize JWTManager with the Flask application
 jwt = JWTManager(app)
-
-# Port binding for deployment in Render web service
-if __name__ == '__main__':
-    app.run()
