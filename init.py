@@ -3,7 +3,6 @@ This module initializes a Flask application with various extensions and configur
 """
 
 # Import statements
-import os
 from os import environ
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -43,5 +42,4 @@ jwt = JWTManager(app)
 
 # Port binding for deployment in Render web service
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run()
